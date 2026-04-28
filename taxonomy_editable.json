@@ -1,0 +1,1889 @@
+{
+  "_doc": {
+    "version": 3,
+    "description": "Taxonomía editable Colsein. Edita este archivo para agregar categorías, atributos o filtros.",
+    "how_to_extend": [
+      "Para agregar una hoja nueva: añade un objeto en 'nodes' con id como 'tronco.subtronco.hoja'",
+      "Para agregar un filtro a una hoja: añade {'id': 'attribute_id'} en leaf_filters[hoja]",
+      "Para agregar un atributo nuevo: añade entrada en 'attribute_definitions' con field, kind, label",
+      "kind puede ser 'enum' (un valor) o 'enum_multi' (lista de valores)",
+      "field es el nombre corto que llevará el atributo en el JSON de productos"
+    ]
+  },
+  "brands": [
+    {
+      "id": "phoenix-contact",
+      "name": "Phoenix Contact",
+      "url": "https://www.phoenixcontact.com/"
+    },
+    {
+      "id": "sick",
+      "name": "SICK",
+      "url": "https://www.sick.com/"
+    },
+    {
+      "id": "janitza",
+      "name": "Janitza",
+      "url": "https://www.janitza.com/"
+    },
+    {
+      "id": "weg",
+      "name": "WEG",
+      "url": "https://www.weg.net/"
+    },
+    {
+      "id": "unitronics",
+      "name": "Unitronics",
+      "url": "https://www.unitronicsplc.com/"
+    },
+    {
+      "id": "red-lion",
+      "name": "Red Lion",
+      "url": "https://www.redlion.net/"
+    },
+    {
+      "id": "abb",
+      "name": "ABB",
+      "url": "https://new.abb.com/"
+    },
+    {
+      "id": "advantech",
+      "name": "Advantech",
+      "url": "https://www.advantech.com/"
+    },
+    {
+      "id": "helukabel",
+      "name": "Helukabel",
+      "url": "https://www.helukabel.com/"
+    },
+    {
+      "id": "item",
+      "name": "item",
+      "url": "https://www.item24.com/"
+    },
+    {
+      "id": "troax",
+      "name": "Troax",
+      "url": "https://www.troax.com/"
+    },
+    {
+      "id": "winters",
+      "name": "Winters",
+      "url": "https://www.winters.com/"
+    },
+    {
+      "id": "fortress",
+      "name": "Fortress",
+      "url": "https://www.fortressinterlocks.com/"
+    },
+    {
+      "id": "hbk",
+      "name": "HBK",
+      "url": "https://www.hbkworld.com/"
+    },
+    {
+      "id": "stahl",
+      "name": "R. Stahl",
+      "url": "https://www.r-stahl.com/"
+    },
+    {
+      "id": "aveva",
+      "name": "AVEVA",
+      "url": "https://www.aveva.com/"
+    },
+    {
+      "id": "yopandyop",
+      "name": "YopandYop",
+      "url": "https://yopandyop.com/"
+    },
+    {
+      "id": "supmea",
+      "name": "Supmea",
+      "url": "https://www.supmea.com/"
+    },
+    {
+      "id": "zenitel",
+      "name": "Zenitel",
+      "url": "https://www.zenitel.com/"
+    },
+    {
+      "id": "koontech",
+      "name": "Koontech",
+      "url": "https://www.koontech.com/"
+    },
+    {
+      "id": "hms-networks",
+      "name": "HMS Networks",
+      "url": "https://www.hms-networks.com/"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "root",
+      "label": "Catálogo",
+      "parent": null,
+      "is_leaf": false,
+      "level": 0,
+      "trunk": null
+    },
+    {
+      "id": "instrumentacion-medicion",
+      "label": "Instrumentación y medición",
+      "parent": "root",
+      "is_leaf": false,
+      "level": 1,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.presion",
+      "label": "Presión",
+      "parent": "instrumentacion-medicion",
+      "is_leaf": false,
+      "level": 2,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.presion.transmisores",
+      "label": "Transmisores",
+      "parent": "instrumentacion-medicion.presion",
+      "is_leaf": false,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.presion.transmisores.absoluta",
+      "label": "Presión absoluta",
+      "parent": "instrumentacion-medicion.presion.transmisores",
+      "is_leaf": true,
+      "level": 4,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.presion.transmisores.manometrica",
+      "label": "Presión manométrica",
+      "parent": "instrumentacion-medicion.presion.transmisores",
+      "is_leaf": true,
+      "level": 4,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.presion.transmisores.diferencial",
+      "label": "Presión diferencial",
+      "parent": "instrumentacion-medicion.presion.transmisores",
+      "is_leaf": true,
+      "level": 4,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.presion.transmisores.multivariable",
+      "label": "Multivariable",
+      "parent": "instrumentacion-medicion.presion.transmisores",
+      "is_leaf": true,
+      "level": 4,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.presion.manometros-mecanicos",
+      "label": "Manómetros mecánicos",
+      "parent": "instrumentacion-medicion.presion",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.presion.accesorios",
+      "label": "Accesorios",
+      "parent": "instrumentacion-medicion.presion",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.temperatura",
+      "label": "Temperatura",
+      "parent": "instrumentacion-medicion",
+      "is_leaf": false,
+      "level": 2,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.temperatura.rtd",
+      "label": "RTD",
+      "parent": "instrumentacion-medicion.temperatura",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.temperatura.termocupla",
+      "label": "Termocuplas",
+      "parent": "instrumentacion-medicion.temperatura",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.temperatura.transmisores",
+      "label": "Transmisores",
+      "parent": "instrumentacion-medicion.temperatura",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.temperatura.termometros-mecanicos",
+      "label": "Termómetros mecánicos",
+      "parent": "instrumentacion-medicion.temperatura",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.temperatura.termopozos",
+      "label": "Termopozos",
+      "parent": "instrumentacion-medicion.temperatura",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.caudal",
+      "label": "Caudal",
+      "parent": "instrumentacion-medicion",
+      "is_leaf": false,
+      "level": 2,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.caudal.electromagnetico",
+      "label": "Electromagnético",
+      "parent": "instrumentacion-medicion.caudal",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.caudal.coriolis",
+      "label": "Coriolis",
+      "parent": "instrumentacion-medicion.caudal",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.caudal.vortex",
+      "label": "Vortex",
+      "parent": "instrumentacion-medicion.caudal",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.caudal.ultrasonico",
+      "label": "Ultrasónico",
+      "parent": "instrumentacion-medicion.caudal",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.caudal.area-variable",
+      "label": "Área variable",
+      "parent": "instrumentacion-medicion.caudal",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.caudal.termico",
+      "label": "Térmico",
+      "parent": "instrumentacion-medicion.caudal",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.caudal.presion-diferencial",
+      "label": "Presión diferencial (DP)",
+      "parent": "instrumentacion-medicion.caudal",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.caudal.computadores",
+      "label": "Computadores de flujo",
+      "parent": "instrumentacion-medicion.caudal",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.nivel",
+      "label": "Nivel",
+      "parent": "instrumentacion-medicion",
+      "is_leaf": false,
+      "level": 2,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.nivel.radar-no-contacto",
+      "label": "Radar (no contacto)",
+      "parent": "instrumentacion-medicion.nivel",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.nivel.radar-onda-guiada",
+      "label": "Radar onda guiada",
+      "parent": "instrumentacion-medicion.nivel",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.nivel.ultrasonico",
+      "label": "Ultrasónico",
+      "parent": "instrumentacion-medicion.nivel",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.nivel.laser",
+      "label": "Láser",
+      "parent": "instrumentacion-medicion.nivel",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.nivel.magnetoestrictivo",
+      "label": "Magnetoestrictivo",
+      "parent": "instrumentacion-medicion.nivel",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.nivel.regleta",
+      "label": "Magnético / regleta",
+      "parent": "instrumentacion-medicion.nivel",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.nivel.transmisor-hidrostatico",
+      "label": "Hidrostático",
+      "parent": "instrumentacion-medicion.nivel",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.analitica",
+      "label": "Analítica",
+      "parent": "instrumentacion-medicion",
+      "is_leaf": false,
+      "level": 2,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.analitica.ph-redox",
+      "label": "pH / Redox",
+      "parent": "instrumentacion-medicion.analitica",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.analitica.conductividad",
+      "label": "Conductividad",
+      "parent": "instrumentacion-medicion.analitica",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.analitica.oxigeno-disuelto",
+      "label": "Oxígeno disuelto",
+      "parent": "instrumentacion-medicion.analitica",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.analitica.turbidez",
+      "label": "Turbidez",
+      "parent": "instrumentacion-medicion.analitica",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.analitica.cloro-libre",
+      "label": "Cloro libre",
+      "parent": "instrumentacion-medicion.analitica",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.analitica.iones-especificos",
+      "label": "Iones específicos",
+      "parent": "instrumentacion-medicion.analitica",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.analitica.gases",
+      "label": "Análisis de gases",
+      "parent": "instrumentacion-medicion.analitica",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.fuerza-peso",
+      "label": "Fuerza y peso",
+      "parent": "instrumentacion-medicion",
+      "is_leaf": false,
+      "level": 2,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.fuerza-peso.celdas-carga",
+      "label": "Celdas de carga",
+      "parent": "instrumentacion-medicion.fuerza-peso",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.fuerza-peso.galgas",
+      "label": "Galgas extensométricas",
+      "parent": "instrumentacion-medicion.fuerza-peso",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.fuerza-peso.transductores-fuerza-par",
+      "label": "Transductores fuerza/par",
+      "parent": "instrumentacion-medicion.fuerza-peso",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.fuerza-peso.daq",
+      "label": "Sistemas DAQ",
+      "parent": "instrumentacion-medicion.fuerza-peso",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.calidad-energia",
+      "label": "Calidad de energía",
+      "parent": "instrumentacion-medicion",
+      "is_leaf": false,
+      "level": 2,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.calidad-energia.medidores-clase-a",
+      "label": "Medidores Clase A",
+      "parent": "instrumentacion-medicion.calidad-energia",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.calidad-energia.medidores-energia",
+      "label": "Medidores de energía",
+      "parent": "instrumentacion-medicion.calidad-energia",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.registradores",
+      "label": "Registradores",
+      "parent": "instrumentacion-medicion",
+      "is_leaf": false,
+      "level": 2,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.registradores.circulares",
+      "label": "Circulares",
+      "parent": "instrumentacion-medicion.registradores",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "instrumentacion-medicion.registradores.sin-papel",
+      "label": "Sin papel",
+      "parent": "instrumentacion-medicion.registradores",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "instrumentacion-medicion"
+    },
+    {
+      "id": "deteccion-posicionamiento",
+      "label": "Detección y posicionamiento",
+      "parent": "root",
+      "is_leaf": false,
+      "level": 1,
+      "trunk": "deteccion-posicionamiento"
+    },
+    {
+      "id": "deteccion-posicionamiento.fotoelectricos",
+      "label": "Sensores fotoeléctricos",
+      "parent": "deteccion-posicionamiento",
+      "is_leaf": false,
+      "level": 2,
+      "trunk": "deteccion-posicionamiento"
+    },
+    {
+      "id": "deteccion-posicionamiento.inductivos",
+      "label": "Sensores inductivos",
+      "parent": "deteccion-posicionamiento",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "deteccion-posicionamiento"
+    },
+    {
+      "id": "deteccion-posicionamiento.capacitivos",
+      "label": "Sensores capacitivos",
+      "parent": "deteccion-posicionamiento",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "deteccion-posicionamiento"
+    },
+    {
+      "id": "deteccion-posicionamiento.encoders",
+      "label": "Encoders",
+      "parent": "deteccion-posicionamiento",
+      "is_leaf": false,
+      "level": 2,
+      "trunk": "deteccion-posicionamiento"
+    },
+    {
+      "id": "deteccion-posicionamiento.encoders.incrementales",
+      "label": "Incrementales",
+      "parent": "deteccion-posicionamiento.encoders",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "deteccion-posicionamiento"
+    },
+    {
+      "id": "deteccion-posicionamiento.encoders.absolutos",
+      "label": "Absolutos",
+      "parent": "deteccion-posicionamiento.encoders",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "deteccion-posicionamiento"
+    },
+    {
+      "id": "deteccion-posicionamiento.lidar-2d",
+      "label": "LiDAR 2D",
+      "parent": "deteccion-posicionamiento",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "deteccion-posicionamiento"
+    },
+    {
+      "id": "deteccion-posicionamiento.lidar-3d",
+      "label": "LiDAR 3D",
+      "parent": "deteccion-posicionamiento",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "deteccion-posicionamiento"
+    },
+    {
+      "id": "deteccion-posicionamiento.vision",
+      "label": "Visión industrial",
+      "parent": "deteccion-posicionamiento",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "deteccion-posicionamiento"
+    },
+    {
+      "id": "deteccion-posicionamiento.rfid",
+      "label": "RFID",
+      "parent": "deteccion-posicionamiento",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "deteccion-posicionamiento"
+    },
+    {
+      "id": "control-automatizacion",
+      "label": "Control y automatización",
+      "parent": "root",
+      "is_leaf": false,
+      "level": 1,
+      "trunk": "control-automatizacion"
+    },
+    {
+      "id": "control-automatizacion.oplc",
+      "label": "OPLC (PLC + HMI)",
+      "parent": "control-automatizacion",
+      "is_leaf": false,
+      "level": 2,
+      "trunk": "control-automatizacion"
+    },
+    {
+      "id": "control-automatizacion.oplc.jazz-samba",
+      "label": "Jazz samba",
+      "parent": "control-automatizacion.oplc",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "control-automatizacion"
+    },
+    {
+      "id": "control-automatizacion.oplc.vision-unistream",
+      "label": "Vision unistream",
+      "parent": "control-automatizacion.oplc",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "control-automatizacion"
+    },
+    {
+      "id": "control-automatizacion.plc-modular",
+      "label": "PLC modular",
+      "parent": "control-automatizacion",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "control-automatizacion"
+    },
+    {
+      "id": "control-automatizacion.io-remoto",
+      "label": "I/O remoto",
+      "parent": "control-automatizacion",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "control-automatizacion"
+    },
+    {
+      "id": "computo-industrial",
+      "label": "Cómputo industrial",
+      "parent": "root",
+      "is_leaf": false,
+      "level": 1,
+      "trunk": "computo-industrial"
+    },
+    {
+      "id": "computo-industrial.ipc-rack",
+      "label": "IPC rack",
+      "parent": "computo-industrial",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "computo-industrial"
+    },
+    {
+      "id": "computo-industrial.embedded-box",
+      "label": "Embedded box",
+      "parent": "computo-industrial",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "computo-industrial"
+    },
+    {
+      "id": "computo-industrial.panel-pc",
+      "label": "Panel PC",
+      "parent": "computo-industrial",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "computo-industrial"
+    },
+    {
+      "id": "computo-industrial.iot-gateways",
+      "label": "IoT gateways",
+      "parent": "computo-industrial",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "computo-industrial"
+    },
+    {
+      "id": "computo-industrial.daq-hardware",
+      "label": "Hardware DAQ",
+      "parent": "computo-industrial",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "computo-industrial"
+    },
+    {
+      "id": "hmi-visualizacion",
+      "label": "HMI y visualización",
+      "parent": "root",
+      "is_leaf": false,
+      "level": 1,
+      "trunk": "hmi-visualizacion"
+    },
+    {
+      "id": "hmi-visualizacion.hmi-fisica",
+      "label": "HMI física",
+      "parent": "hmi-visualizacion",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "hmi-visualizacion"
+    },
+    {
+      "id": "hmi-visualizacion.hmi-ex",
+      "label": "HMI Ex",
+      "parent": "hmi-visualizacion",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "hmi-visualizacion"
+    },
+    {
+      "id": "redes-comunicaciones-industriales",
+      "label": "Redes industriales",
+      "parent": "root",
+      "is_leaf": false,
+      "level": 1,
+      "trunk": "redes-comunicaciones-industriales"
+    },
+    {
+      "id": "redes-comunicaciones-industriales.switches",
+      "label": "Switches",
+      "parent": "redes-comunicaciones-industriales",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "redes-comunicaciones-industriales"
+    },
+    {
+      "id": "redes-comunicaciones-industriales.routers",
+      "label": "Routers / firewalls",
+      "parent": "redes-comunicaciones-industriales",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "redes-comunicaciones-industriales"
+    },
+    {
+      "id": "redes-comunicaciones-industriales.gateways-protocolo",
+      "label": "Gateways de protocolo",
+      "parent": "redes-comunicaciones-industriales",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "redes-comunicaciones-industriales"
+    },
+    {
+      "id": "redes-comunicaciones-industriales.fibra-conversores",
+      "label": "Conversores fibra óptica",
+      "parent": "redes-comunicaciones-industriales",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "redes-comunicaciones-industriales"
+    },
+    {
+      "id": "redes-comunicaciones-industriales.bus-campo",
+      "label": "Bus de campo",
+      "parent": "redes-comunicaciones-industriales",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "redes-comunicaciones-industriales"
+    },
+    {
+      "id": "comunicaciones-criticas-voz",
+      "label": "Comunicaciones críticas",
+      "parent": "root",
+      "is_leaf": false,
+      "level": 1,
+      "trunk": "comunicaciones-criticas-voz"
+    },
+    {
+      "id": "comunicaciones-criticas-voz.intercom-ip",
+      "label": "Intercom IP",
+      "parent": "comunicaciones-criticas-voz",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "comunicaciones-criticas-voz"
+    },
+    {
+      "id": "comunicaciones-criticas-voz.public-address",
+      "label": "Public address",
+      "parent": "comunicaciones-criticas-voz",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "comunicaciones-criticas-voz"
+    },
+    {
+      "id": "comunicaciones-criticas-voz.telefonos-industriales",
+      "label": "Teléfonos industriales",
+      "parent": "comunicaciones-criticas-voz",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "comunicaciones-criticas-voz"
+    },
+    {
+      "id": "comunicaciones-criticas-voz.servidores-centrales",
+      "label": "Servidores centrales",
+      "parent": "comunicaciones-criticas-voz",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "comunicaciones-criticas-voz"
+    },
+    {
+      "id": "energia-infraestructura-electrica",
+      "label": "Energía e infraestructura eléctrica",
+      "parent": "root",
+      "is_leaf": false,
+      "level": 1,
+      "trunk": "energia-infraestructura-electrica"
+    },
+    {
+      "id": "energia-infraestructura-electrica.fuentes-dc",
+      "label": "Fuentes DC",
+      "parent": "energia-infraestructura-electrica",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "energia-infraestructura-electrica"
+    },
+    {
+      "id": "energia-infraestructura-electrica.ups-redundancia",
+      "label": "UPS / redundancia",
+      "parent": "energia-infraestructura-electrica",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "energia-infraestructura-electrica"
+    },
+    {
+      "id": "energia-infraestructura-electrica.spd",
+      "label": "Protección sobretensiones",
+      "parent": "energia-infraestructura-electrica",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "energia-infraestructura-electrica"
+    },
+    {
+      "id": "energia-infraestructura-electrica.bornes",
+      "label": "Bornes",
+      "parent": "energia-infraestructura-electrica",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "energia-infraestructura-electrica"
+    },
+    {
+      "id": "energia-infraestructura-electrica.interfaces-rele",
+      "label": "Interfaces de relé",
+      "parent": "energia-infraestructura-electrica",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "energia-infraestructura-electrica"
+    },
+    {
+      "id": "energia-infraestructura-electrica.transformadores",
+      "label": "Transformadores",
+      "parent": "energia-infraestructura-electrica",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "energia-infraestructura-electrica"
+    },
+    {
+      "id": "motores-movimiento",
+      "label": "Motores y movimiento",
+      "parent": "root",
+      "is_leaf": false,
+      "level": 1,
+      "trunk": "motores-movimiento"
+    },
+    {
+      "id": "motores-movimiento.motores",
+      "label": "Motores",
+      "parent": "motores-movimiento",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "motores-movimiento"
+    },
+    {
+      "id": "motores-movimiento.variadores",
+      "label": "Variadores de frecuencia",
+      "parent": "motores-movimiento",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "motores-movimiento"
+    },
+    {
+      "id": "motores-movimiento.soft-starters",
+      "label": "Soft starters",
+      "parent": "motores-movimiento",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "motores-movimiento"
+    },
+    {
+      "id": "motores-movimiento.contactores-arrancadores",
+      "label": "Contactores",
+      "parent": "motores-movimiento",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "motores-movimiento"
+    },
+    {
+      "id": "motores-movimiento.generadores",
+      "label": "Generadores",
+      "parent": "motores-movimiento",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "motores-movimiento"
+    },
+    {
+      "id": "equipos-zonas-ex",
+      "label": "Equipos para zonas Ex",
+      "parent": "root",
+      "is_leaf": false,
+      "level": 1,
+      "trunk": "equipos-zonas-ex"
+    },
+    {
+      "id": "equipos-zonas-ex.luminarias-ex",
+      "label": "Luminarias Ex",
+      "parent": "equipos-zonas-ex",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "equipos-zonas-ex"
+    },
+    {
+      "id": "equipos-zonas-ex.cajas-envolventes-ex",
+      "label": "Cajas Ex",
+      "parent": "equipos-zonas-ex",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "equipos-zonas-ex"
+    },
+    {
+      "id": "equipos-zonas-ex.hmi-paneles-ex",
+      "label": "HMI / paneles Ex",
+      "parent": "equipos-zonas-ex",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "equipos-zonas-ex"
+    },
+    {
+      "id": "equipos-zonas-ex.instrumentacion-ex",
+      "label": "Instrumentación Ex",
+      "parent": "equipos-zonas-ex",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "equipos-zonas-ex"
+    },
+    {
+      "id": "equipos-zonas-ex.sistemas-control-ex",
+      "label": "Sistemas control Ex",
+      "parent": "equipos-zonas-ex",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "equipos-zonas-ex"
+    },
+    {
+      "id": "seguridad-maquina-industrial",
+      "label": "Seguridad de máquina",
+      "parent": "root",
+      "is_leaf": false,
+      "level": 1,
+      "trunk": "seguridad-maquina-industrial"
+    },
+    {
+      "id": "seguridad-maquina-industrial.trapped-key",
+      "label": "Trapped key",
+      "parent": "seguridad-maquina-industrial",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "seguridad-maquina-industrial"
+    },
+    {
+      "id": "seguridad-maquina-industrial.guard-locking",
+      "label": "Guard locking",
+      "parent": "seguridad-maquina-industrial",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "seguridad-maquina-industrial"
+    },
+    {
+      "id": "seguridad-maquina-industrial.cortinas-luz",
+      "label": "Cortinas / rejillas de luz",
+      "parent": "seguridad-maquina-industrial",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "seguridad-maquina-industrial"
+    },
+    {
+      "id": "seguridad-maquina-industrial.paneles-malla",
+      "label": "Paneles malla",
+      "parent": "seguridad-maquina-industrial",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "seguridad-maquina-industrial"
+    },
+    {
+      "id": "mecanica-estructura",
+      "label": "Mecánica y estructura",
+      "parent": "root",
+      "is_leaf": false,
+      "level": 1,
+      "trunk": "mecanica-estructura"
+    },
+    {
+      "id": "mecanica-estructura.perfiles",
+      "label": "Perfiles de aluminio",
+      "parent": "mecanica-estructura",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "mecanica-estructura"
+    },
+    {
+      "id": "mecanica-estructura.conectores",
+      "label": "Conectores",
+      "parent": "mecanica-estructura",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "mecanica-estructura"
+    },
+    {
+      "id": "mecanica-estructura.mesas-estaciones",
+      "label": "Mesas y estaciones",
+      "parent": "mecanica-estructura",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "mecanica-estructura"
+    },
+    {
+      "id": "cables-conexion",
+      "label": "Cables y conexión",
+      "parent": "root",
+      "is_leaf": false,
+      "level": 1,
+      "trunk": "cables-conexion"
+    },
+    {
+      "id": "cables-conexion.cables",
+      "label": "Cables",
+      "parent": "cables-conexion",
+      "is_leaf": false,
+      "level": 2,
+      "trunk": "cables-conexion"
+    },
+    {
+      "id": "cables-conexion.cables.control-poder",
+      "label": "Control y poder",
+      "parent": "cables-conexion.cables",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "cables-conexion"
+    },
+    {
+      "id": "cables-conexion.cables.instrumentacion",
+      "label": "Instrumentación",
+      "parent": "cables-conexion.cables",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "cables-conexion"
+    },
+    {
+      "id": "cables-conexion.cables.datos-bus",
+      "label": "Datos / bus",
+      "parent": "cables-conexion.cables",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "cables-conexion"
+    },
+    {
+      "id": "cables-conexion.cables.fibra-optica",
+      "label": "Fibra óptica",
+      "parent": "cables-conexion.cables",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "cables-conexion"
+    },
+    {
+      "id": "cables-conexion.cables.especiales",
+      "label": "Especiales",
+      "parent": "cables-conexion.cables",
+      "is_leaf": true,
+      "level": 3,
+      "trunk": "cables-conexion"
+    },
+    {
+      "id": "cables-conexion.conectores",
+      "label": "Conectores",
+      "parent": "cables-conexion",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "cables-conexion"
+    },
+    {
+      "id": "software-industrial",
+      "label": "Software industrial",
+      "parent": "root",
+      "is_leaf": false,
+      "level": 1,
+      "trunk": "software-industrial"
+    },
+    {
+      "id": "software-industrial.scada-hmi",
+      "label": "SCADA / HMI",
+      "parent": "software-industrial",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "software-industrial"
+    },
+    {
+      "id": "software-industrial.historian",
+      "label": "Historian",
+      "parent": "software-industrial",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "software-industrial"
+    },
+    {
+      "id": "software-industrial.mes-batch",
+      "label": "MES / Batch",
+      "parent": "software-industrial",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "software-industrial"
+    },
+    {
+      "id": "software-industrial.engineering-design",
+      "label": "Ingeniería y diseño",
+      "parent": "software-industrial",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "software-industrial"
+    },
+    {
+      "id": "software-industrial.operations-mobile",
+      "label": "Operations mobile",
+      "parent": "software-industrial",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "software-industrial"
+    },
+    {
+      "id": "software-industrial.cloud-data-hub",
+      "label": "Cloud / Data hub",
+      "parent": "software-industrial",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "software-industrial"
+    },
+    {
+      "id": "software-industrial.test-analysis",
+      "label": "Pruebas y análisis",
+      "parent": "software-industrial",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "software-industrial"
+    },
+    {
+      "id": "software-industrial.energy-management",
+      "label": "Energy management",
+      "parent": "software-industrial",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "software-industrial"
+    },
+    {
+      "id": "trafico-transporte-infraestructura",
+      "label": "Tráfico y transporte",
+      "parent": "root",
+      "is_leaf": false,
+      "level": 1,
+      "trunk": "trafico-transporte-infraestructura"
+    },
+    {
+      "id": "trafico-transporte-infraestructura.peajes",
+      "label": "Peajes",
+      "parent": "trafico-transporte-infraestructura",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "trafico-transporte-infraestructura"
+    },
+    {
+      "id": "trafico-transporte-infraestructura.its-via-tunel",
+      "label": "ITS vía / túnel",
+      "parent": "trafico-transporte-infraestructura",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "trafico-transporte-infraestructura"
+    },
+    {
+      "id": "trafico-transporte-infraestructura.parqueaderos",
+      "label": "Parqueaderos",
+      "parent": "trafico-transporte-infraestructura",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "trafico-transporte-infraestructura"
+    },
+    {
+      "id": "trafico-transporte-infraestructura.fotodeteccion",
+      "label": "Fotodetección",
+      "parent": "trafico-transporte-infraestructura",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "trafico-transporte-infraestructura"
+    },
+    {
+      "id": "trafico-transporte-infraestructura.sensores-ambientales",
+      "label": "Sensores ambientales",
+      "parent": "trafico-transporte-infraestructura",
+      "is_leaf": true,
+      "level": 2,
+      "trunk": "trafico-transporte-infraestructura"
+    }
+  ],
+  "attribute_definitions": {
+    "brand": {
+      "label": "Marca",
+      "kind": "enum",
+      "field": "brand"
+    },
+    "lifecycle": {
+      "label": "Estado",
+      "kind": "enum",
+      "field": "lifecycle"
+    },
+    "industries": {
+      "label": "Industria",
+      "kind": "enum_multi",
+      "field": "industries"
+    },
+    "certifications": {
+      "label": "Certificación",
+      "kind": "enum_multi",
+      "field": "certs"
+    },
+    "ip_rating": {
+      "label": "Grado IP",
+      "kind": "enum",
+      "field": "ip"
+    },
+    "country_of_origin": {
+      "label": "País de origen",
+      "kind": "enum",
+      "field": "country"
+    },
+    "is_software": {
+      "label": "Tipo (HW/SW)",
+      "kind": "enum",
+      "field": "is_software"
+    },
+    "output_signal": {
+      "label": "Señal de salida",
+      "kind": "enum_multi",
+      "field": "output"
+    },
+    "industrial_protocols_supported": {
+      "label": "Protocolos",
+      "kind": "enum_multi",
+      "field": "protocols"
+    },
+    "wetted_materials": {
+      "label": "Materiales mojados",
+      "kind": "enum_multi",
+      "field": "wetted"
+    },
+    "performance_level_pl": {
+      "label": "Nivel de desempeño",
+      "kind": "enum",
+      "field": "performance_level"
+    },
+    "machine_safety_function": {
+      "label": "Función de seguridad",
+      "kind": "enum",
+      "field": "safety_function"
+    },
+    "ex_marking_complete": {
+      "label": "Marcado Ex",
+      "kind": "enum",
+      "field": "ex_marking"
+    },
+    "ex_zone": {
+      "label": "Zona Ex",
+      "kind": "enum",
+      "field": "ex_zone"
+    },
+    "light_curtain_type": {
+      "label": "Tipo de aplicación",
+      "kind": "enum",
+      "field": "lc_type"
+    },
+    "light_curtain_height_mm": {
+      "label": "Altura del campo (mm)",
+      "kind": "enum",
+      "field": "lc_height"
+    },
+    "light_curtain_resolution_mm": {
+      "label": "Resolución (mm)",
+      "kind": "enum",
+      "field": "lc_resolution"
+    },
+    "muting_integrated": {
+      "label": "Muting integrado",
+      "kind": "enum",
+      "field": "muting"
+    },
+    "photo_sensor_type": {
+      "label": "Principio fotoeléctrico",
+      "kind": "enum",
+      "field": "photo_type"
+    },
+    "photo_light_source": {
+      "label": "Fuente de luz",
+      "kind": "enum",
+      "field": "photo_light"
+    },
+    "iolink_supported": {
+      "label": "IO-Link",
+      "kind": "enum",
+      "field": "iolink"
+    },
+    "connection_type": {
+      "label": "Conexión",
+      "kind": "enum",
+      "field": "connection"
+    },
+    "housing_size_series": {
+      "label": "Serie / tamaño",
+      "kind": "enum",
+      "field": "housing"
+    },
+    "inductive_size": {
+      "label": "Tamaño / forma",
+      "kind": "enum",
+      "field": "ind_size"
+    },
+    "inductive_mounting": {
+      "label": "Montaje",
+      "kind": "enum",
+      "field": "ind_mounting"
+    },
+    "encoder_kind": {
+      "label": "Tipo encoder",
+      "kind": "enum",
+      "field": "enc_kind"
+    },
+    "encoder_multiturn": {
+      "label": "Multivuelta",
+      "kind": "enum",
+      "field": "enc_multi"
+    },
+    "encoder_resolution_bits": {
+      "label": "Resolución (bits)",
+      "kind": "enum",
+      "field": "enc_bits"
+    },
+    "encoder_pulses_per_rev": {
+      "label": "Pulsos por vuelta",
+      "kind": "enum",
+      "field": "enc_ppr"
+    },
+    "lidar_max_range_m": {
+      "label": "Alcance máximo (m)",
+      "kind": "enum",
+      "field": "lidar_range"
+    },
+    "lidar_scan_angle_deg": {
+      "label": "Ángulo de barrido (°)",
+      "kind": "enum",
+      "field": "lidar_angle"
+    },
+    "lidar_application": {
+      "label": "Aplicación",
+      "kind": "enum",
+      "field": "lidar_app"
+    },
+    "motor_power_kw": {
+      "label": "Potencia (kW)",
+      "kind": "enum",
+      "field": "motor_kw"
+    },
+    "motor_power_hp": {
+      "label": "Potencia (HP)",
+      "kind": "enum",
+      "field": "motor_hp"
+    },
+    "motor_voltage": {
+      "label": "Voltaje",
+      "kind": "enum",
+      "field": "motor_v"
+    },
+    "motor_poles": {
+      "label": "Polos",
+      "kind": "enum",
+      "field": "motor_poles"
+    },
+    "motor_efficiency_class": {
+      "label": "Eficiencia",
+      "kind": "enum",
+      "field": "motor_eff"
+    },
+    "motor_frame_size": {
+      "label": "Frame",
+      "kind": "enum",
+      "field": "motor_frame"
+    },
+    "vfd_power_kw": {
+      "label": "Potencia VFD (kW)",
+      "kind": "enum",
+      "field": "vfd_kw"
+    },
+    "vfd_power_hp": {
+      "label": "Potencia VFD (HP)",
+      "kind": "enum",
+      "field": "vfd_hp"
+    },
+    "vfd_input_voltage": {
+      "label": "Voltaje entrada",
+      "kind": "enum",
+      "field": "vfd_v"
+    },
+    "terminal_section_mm2": {
+      "label": "Sección (mm²)",
+      "kind": "enum",
+      "field": "term_sec"
+    },
+    "terminal_connection_method": {
+      "label": "Método conexión",
+      "kind": "enum",
+      "field": "term_con"
+    },
+    "terminal_kind": {
+      "label": "Tipo de borne",
+      "kind": "enum",
+      "field": "term_kind"
+    },
+    "psu_output_voltage_v": {
+      "label": "Voltaje salida (V)",
+      "kind": "enum",
+      "field": "psu_v"
+    },
+    "psu_output_current_a": {
+      "label": "Corriente salida (A)",
+      "kind": "enum",
+      "field": "psu_a"
+    },
+    "psu_output_power_w": {
+      "label": "Potencia (W)",
+      "kind": "enum",
+      "field": "psu_w"
+    },
+    "psu_input": {
+      "label": "Entrada AC",
+      "kind": "enum",
+      "field": "psu_in"
+    },
+    "psu_family": {
+      "label": "Familia",
+      "kind": "enum",
+      "field": "psu_fam"
+    },
+    "switch_port_count": {
+      "label": "Cantidad de puertos",
+      "kind": "enum",
+      "field": "sw_ports"
+    },
+    "managed_switch": {
+      "label": "Gestionado",
+      "kind": "enum",
+      "field": "sw_managed"
+    },
+    "switch_gigabit": {
+      "label": "Gigabit",
+      "kind": "enum",
+      "field": "sw_gigabit"
+    },
+    "switch_layer": {
+      "label": "Capa OSI",
+      "kind": "enum",
+      "field": "sw_layer"
+    },
+    "flow_meter_dn": {
+      "label": "DN (diámetro nominal)",
+      "kind": "enum",
+      "field": "flow_dn"
+    },
+    "pressure_range": {
+      "label": "Rango de presión",
+      "kind": "enum",
+      "field": "p_range"
+    },
+    "accuracy_class": {
+      "label": "Precisión",
+      "kind": "enum",
+      "field": "accuracy"
+    },
+    "sil_capable": {
+      "label": "Apto SIL",
+      "kind": "enum",
+      "field": "sil"
+    },
+    "plc_family": {
+      "label": "Familia PLC",
+      "kind": "enum",
+      "field": "plc_fam"
+    },
+    "plc_cpu_class": {
+      "label": "CPU",
+      "kind": "enum",
+      "field": "plc_cpu"
+    },
+    "hmi_screen_size": {
+      "label": "Tamaño pantalla (\")",
+      "kind": "enum",
+      "field": "screen_size"
+    },
+    "cable_family": {
+      "label": "Familia cable",
+      "kind": "enum",
+      "field": "cable_fam"
+    },
+    "cable_conductor_count": {
+      "label": "Núm. conductores",
+      "kind": "enum",
+      "field": "cable_cores"
+    },
+    "cable_section_mm2": {
+      "label": "Sección cable (mm²)",
+      "kind": "enum",
+      "field": "cable_sec"
+    },
+    "cable_application": {
+      "label": "Aplicación",
+      "kind": "enum",
+      "field": "cable_app"
+    },
+    "enclosure_material": {
+      "label": "Material caja",
+      "kind": "enum",
+      "field": "encl_mat"
+    },
+    "meter_form_factor": {
+      "label": "Formato",
+      "kind": "enum",
+      "field": "meter_fmt"
+    },
+    "meter_accuracy_class": {
+      "label": "Clase precisión",
+      "kind": "enum",
+      "field": "meter_class"
+    }
+  },
+  "universal_filters": [
+    {
+      "id": "brand"
+    },
+    {
+      "id": "industries"
+    },
+    {
+      "id": "certifications"
+    },
+    {
+      "id": "lifecycle"
+    }
+  ],
+  "leaf_filters": {
+    "seguridad-maquina-industrial.cortinas-luz": [
+      {
+        "id": "light_curtain_type"
+      },
+      {
+        "id": "light_curtain_resolution_mm"
+      },
+      {
+        "id": "light_curtain_height_mm"
+      },
+      {
+        "id": "performance_level_pl"
+      },
+      {
+        "id": "muting_integrated"
+      },
+      {
+        "id": "brand"
+      }
+    ],
+    "deteccion-posicionamiento.fotoelectricos": [
+      {
+        "id": "photo_sensor_type"
+      },
+      {
+        "id": "housing_size_series"
+      },
+      {
+        "id": "photo_light_source"
+      },
+      {
+        "id": "iolink_supported"
+      },
+      {
+        "id": "connection_type"
+      },
+      {
+        "id": "ip_rating"
+      }
+    ],
+    "deteccion-posicionamiento.inductivos": [
+      {
+        "id": "inductive_size"
+      },
+      {
+        "id": "inductive_mounting"
+      },
+      {
+        "id": "output_signal"
+      },
+      {
+        "id": "iolink_supported"
+      },
+      {
+        "id": "connection_type"
+      }
+    ],
+    "deteccion-posicionamiento.encoders.absolutos": [
+      {
+        "id": "encoder_multiturn"
+      },
+      {
+        "id": "encoder_resolution_bits"
+      },
+      {
+        "id": "output_signal"
+      },
+      {
+        "id": "ip_rating"
+      }
+    ],
+    "deteccion-posicionamiento.encoders.incrementales": [
+      {
+        "id": "encoder_pulses_per_rev"
+      },
+      {
+        "id": "output_signal"
+      },
+      {
+        "id": "ip_rating"
+      }
+    ],
+    "deteccion-posicionamiento.lidar-2d": [
+      {
+        "id": "lidar_application"
+      },
+      {
+        "id": "lidar_max_range_m"
+      },
+      {
+        "id": "lidar_scan_angle_deg"
+      }
+    ],
+    "motores-movimiento.motores": [
+      {
+        "id": "motor_efficiency_class"
+      },
+      {
+        "id": "motor_power_hp"
+      },
+      {
+        "id": "motor_poles"
+      },
+      {
+        "id": "motor_voltage"
+      },
+      {
+        "id": "motor_frame_size"
+      },
+      {
+        "id": "ex_marking_complete"
+      }
+    ],
+    "motores-movimiento.variadores": [
+      {
+        "id": "vfd_power_hp"
+      },
+      {
+        "id": "vfd_input_voltage"
+      },
+      {
+        "id": "industrial_protocols_supported"
+      }
+    ],
+    "energia-infraestructura-electrica.bornes": [
+      {
+        "id": "terminal_section_mm2"
+      },
+      {
+        "id": "terminal_connection_method"
+      },
+      {
+        "id": "terminal_kind"
+      }
+    ],
+    "energia-infraestructura-electrica.fuentes-dc": [
+      {
+        "id": "psu_family"
+      },
+      {
+        "id": "psu_output_voltage_v"
+      },
+      {
+        "id": "psu_output_current_a"
+      },
+      {
+        "id": "psu_input"
+      }
+    ],
+    "redes-comunicaciones-industriales.switches": [
+      {
+        "id": "managed_switch"
+      },
+      {
+        "id": "switch_port_count"
+      },
+      {
+        "id": "switch_gigabit"
+      },
+      {
+        "id": "switch_layer"
+      },
+      {
+        "id": "industrial_protocols_supported"
+      }
+    ],
+    "instrumentacion-medicion.caudal.electromagnetico": [
+      {
+        "id": "flow_meter_dn"
+      },
+      {
+        "id": "wetted_materials"
+      },
+      {
+        "id": "accuracy_class"
+      }
+    ],
+    "instrumentacion-medicion.presion.transmisores.manometrica": [
+      {
+        "id": "pressure_range"
+      },
+      {
+        "id": "accuracy_class"
+      },
+      {
+        "id": "sil_capable"
+      },
+      {
+        "id": "wetted_materials"
+      }
+    ],
+    "control-automatizacion.oplc.vision-unistream": [
+      {
+        "id": "plc_family"
+      },
+      {
+        "id": "hmi_screen_size"
+      },
+      {
+        "id": "plc_cpu_class"
+      },
+      {
+        "id": "industrial_protocols_supported"
+      }
+    ],
+    "cables-conexion.cables.control-poder": [
+      {
+        "id": "cable_family"
+      },
+      {
+        "id": "cable_conductor_count"
+      },
+      {
+        "id": "cable_section_mm2"
+      }
+    ],
+    "cables-conexion.cables.especiales": [
+      {
+        "id": "cable_application"
+      },
+      {
+        "id": "cable_family"
+      },
+      {
+        "id": "cable_section_mm2"
+      }
+    ],
+    "cables-conexion.cables.instrumentacion": [
+      {
+        "id": "cable_family"
+      },
+      {
+        "id": "cable_conductor_count"
+      }
+    ],
+    "cables-conexion.cables.datos-bus": [
+      {
+        "id": "cable_family"
+      }
+    ],
+    "equipos-zonas-ex.cajas-envolventes-ex": [
+      {
+        "id": "enclosure_material"
+      },
+      {
+        "id": "ex_zone"
+      },
+      {
+        "id": "ip_rating"
+      }
+    ],
+    "equipos-zonas-ex.luminarias-ex": [
+      {
+        "id": "ex_zone"
+      },
+      {
+        "id": "ip_rating"
+      }
+    ],
+    "equipos-zonas-ex.hmi-paneles-ex": [
+      {
+        "id": "hmi_screen_size"
+      },
+      {
+        "id": "ex_zone"
+      }
+    ],
+    "equipos-zonas-ex.sistemas-control-ex": [
+      {
+        "id": "ex_zone"
+      },
+      {
+        "id": "industrial_protocols_supported"
+      }
+    ],
+    "instrumentacion-medicion.calidad-energia.medidores-clase-a": [
+      {
+        "id": "meter_form_factor"
+      },
+      {
+        "id": "meter_accuracy_class"
+      },
+      {
+        "id": "industrial_protocols_supported"
+      }
+    ],
+    "instrumentacion-medicion.calidad-energia.medidores-energia": [
+      {
+        "id": "meter_form_factor"
+      },
+      {
+        "id": "industrial_protocols_supported"
+      }
+    ]
+  }
+}

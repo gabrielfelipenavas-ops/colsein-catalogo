@@ -1,0 +1,1862 @@
+<style>
+:root {
+  --csn-primary: #003c7e;
+  --csn-primary-dark: #002a5c;
+  --csn-primary-light: #1a5499;
+  --csn-accent: #0066cc;
+  --csn-accent-light: #e6f0fa;
+  --csn-success: #2d8a3e;
+  --csn-warning: #d97706;
+  --csn-danger: #c92a2a;
+  --csn-bg: #ffffff;
+  --csn-bg-soft: #f4f6f9;
+  --csn-bg-muted: #eef2f6;
+  --csn-text: #0e1726;
+  --csn-text-soft: #4a5568;
+  --csn-text-muted: #6b7280;
+  --csn-border: #d8dee6;
+  --csn-border-light: #e8edf2;
+  --csn-radius: 6px;
+  --csn-radius-lg: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --csn-primary: #4a8fdc;
+    --csn-primary-dark: #3a7bc4;
+    --csn-primary-light: #6ba5e3;
+    --csn-accent: #5ba0f0;
+    --csn-accent-light: #1e2d44;
+    --csn-bg: #0e1622;
+    --csn-bg-soft: #18222e;
+    --csn-bg-muted: #1f2b39;
+    --csn-text: #e8edf3;
+    --csn-text-soft: #b3bdcc;
+    --csn-text-muted: #8492a6;
+    --csn-border: #2a3a4e;
+    --csn-border-light: #1f2b39;
+  }
+}
+.csn-app{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;font-size:14px;color:var(--csn-text);background:var(--csn-bg);min-height:600px;line-height:1.5;position:relative}
+.csn-app *{box-sizing:border-box}
+
+/* Header con branding Colsein */
+.csn-header{background:var(--csn-primary);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:14px;border-bottom:3px solid var(--csn-accent);flex-wrap:wrap}
+.csn-logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:17px;letter-spacing:.02em}
+.csn-logo-mark{width:34px;height:34px;border-radius:8px;background:#fff;color:var(--csn-primary);display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;letter-spacing:.04em}
+.csn-logo-divider{width:1px;height:22px;background:rgba(255,255,255,.3);margin:0 4px}
+.csn-tagline{font-size:12px;font-weight:400;opacity:.85;letter-spacing:.02em}
+.csn-header-spacer{flex:1}
+.csn-header-stats{display:flex;gap:18px;font-size:11px;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:.05em}
+.csn-header-stat strong{color:#fff;font-size:14px;font-weight:600;display:block;letter-spacing:0;text-transform:none}
+
+/* Barra de tabs y acciones */
+.csn-bar{display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--csn-bg-soft);border-bottom:1px solid var(--csn-border);flex-wrap:wrap}
+.csn-tabs{display:flex;gap:0;background:var(--csn-bg);border:1px solid var(--csn-border);border-radius:var(--csn-radius);padding:2px}
+.csn-tab{padding:7px 14px;background:transparent;border:none;cursor:pointer;font-size:13px;color:var(--csn-text-soft);font-family:inherit;font-weight:500;border-radius:4px;transition:all .15s}
+.csn-tab:hover{color:var(--csn-text)}
+.csn-tab.active{background:var(--csn-primary);color:#fff}
+.csn-actions{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+
+.csn-btn{padding:8px 14px;border-radius:var(--csn-radius);border:1px solid var(--csn-border);background:var(--csn-bg);cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:6px;color:var(--csn-text);font-family:inherit;font-weight:500;transition:all .15s;text-decoration:none;white-space:nowrap}
+.csn-btn:hover{border-color:var(--csn-primary);color:var(--csn-primary)}
+.csn-btn:active{transform:translateY(1px)}
+.csn-btn:disabled{opacity:.5;cursor:not-allowed}
+.csn-btn-primary{background:var(--csn-primary);color:#fff;border-color:var(--csn-primary)}
+.csn-btn-primary:hover{background:var(--csn-primary-dark);color:#fff;border-color:var(--csn-primary-dark)}
+.csn-btn-icon{width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+
+/* Layout principal 3 columnas */
+.csn-body{display:grid;grid-template-columns:280px minmax(0,1fr) 320px;gap:0;background:var(--csn-bg);min-height:560px}
+.csn-pane{border-right:1px solid var(--csn-border);overflow-y:auto;max-height:640px}
+.csn-pane:last-child{border-right:none}
+
+/* Árbol de categorías */
+.csn-section-head{padding:12px 14px 8px;font-size:11px;color:var(--csn-text-muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;border-bottom:1px solid var(--csn-border-light);background:var(--csn-bg)}
+.csn-search-box{padding:10px 14px;border-bottom:1px solid var(--csn-border-light);background:var(--csn-bg);position:sticky;top:0;z-index:2}
+.csn-search{width:100%;height:36px;padding:0 12px 0 32px;border-radius:var(--csn-radius);border:1px solid var(--csn-border);background:var(--csn-bg-soft);font-size:13px;color:var(--csn-text);font-family:inherit;transition:border-color .15s}
+.csn-search:focus{outline:none;border-color:var(--csn-primary);background:var(--csn-bg)}
+.csn-search-wrap{position:relative}
+.csn-search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--csn-text-muted);font-size:14px;pointer-events:none}
+
+.csn-tree{padding:6px}
+.csn-node{padding:6px 10px;border-radius:5px;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:13px;color:var(--csn-text);user-select:none;transition:background .12s}
+.csn-node:hover{background:var(--csn-bg-soft)}
+.csn-node.selected{background:var(--csn-accent-light);color:var(--csn-primary);font-weight:600}
+.csn-node-toggle{width:16px;color:var(--csn-text-muted);font-size:9px;text-align:center;font-family:monospace;flex-shrink:0}
+.csn-node-icon{width:14px;color:var(--csn-text-muted);font-size:11px;flex-shrink:0}
+.csn-node.selected .csn-node-icon{color:var(--csn-primary)}
+.csn-node-label{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.csn-node-count{font-size:11px;color:var(--csn-text-muted);background:var(--csn-bg-muted);padding:1px 7px;border-radius:9px;font-weight:500;font-variant-numeric:tabular-nums;flex-shrink:0}
+.csn-node.selected .csn-node-count{background:var(--csn-primary);color:#fff}
+
+/* Panel central: filtros + productos */
+.csn-center{display:flex;flex-direction:column}
+.csn-breadcrumb{padding:10px 18px;background:var(--csn-bg);border-bottom:1px solid var(--csn-border-light);display:flex;align-items:center;gap:6px;font-size:12px;color:var(--csn-text-muted);flex-wrap:wrap}
+.csn-bc-link{color:var(--csn-primary);cursor:pointer;font-weight:500}
+.csn-bc-link:hover{text-decoration:underline}
+.csn-bc-sep{color:var(--csn-border)}
+.csn-bc-current{color:var(--csn-text);font-weight:500}
+
+/* Filtros progresivos estilo SICK */
+.csn-filters-block{padding:14px 18px;background:var(--csn-bg-soft);border-bottom:1px solid var(--csn-border-light)}
+.csn-filters-title{font-size:11px;color:var(--csn-text-muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.csn-filters-clear{font-size:11px;color:var(--csn-primary);cursor:pointer;background:none;border:none;font-family:inherit;text-transform:none;letter-spacing:0;font-weight:500;padding:0}
+.csn-filters-clear:hover{text-decoration:underline}
+.csn-filter-group{margin-bottom:12px}
+.csn-filter-group:last-child{margin-bottom:0}
+.csn-filter-label{font-size:12px;color:var(--csn-text-soft);font-weight:600;margin-bottom:5px;display:flex;align-items:center;justify-content:space-between}
+.csn-filter-label-active{color:var(--csn-primary)}
+.csn-filter-pills{display:flex;flex-wrap:wrap;gap:5px}
+.csn-pill{padding:5px 11px;border-radius:14px;background:var(--csn-bg);border:1px solid var(--csn-border);font-size:12px;cursor:pointer;color:var(--csn-text-soft);display:inline-flex;align-items:center;gap:5px;transition:all .12s;font-family:inherit;font-weight:500}
+.csn-pill:hover{border-color:var(--csn-accent);color:var(--csn-accent)}
+.csn-pill.active{background:var(--csn-primary);color:#fff;border-color:var(--csn-primary)}
+.csn-pill.disabled{opacity:.4;cursor:not-allowed;pointer-events:none;background:var(--csn-bg-muted)}
+.csn-pill-count{font-size:10px;font-variant-numeric:tabular-nums;color:var(--csn-text-muted);font-weight:600}
+.csn-pill.active .csn-pill-count{color:rgba(255,255,255,.85)}
+.csn-pill-x{font-size:13px;line-height:1;opacity:.7;margin-left:1px}
+
+/* Lista productos */
+.csn-results-bar{padding:8px 18px;background:var(--csn-bg);border-bottom:1px solid var(--csn-border-light);font-size:12px;color:var(--csn-text-muted);display:flex;align-items:center;justify-content:space-between}
+.csn-results-count strong{color:var(--csn-text);font-weight:600}
+.csn-products{padding:0;flex:1;overflow-y:auto;max-height:560px;background:var(--csn-bg)}
+.csn-product{padding:14px 18px;border-bottom:1px solid var(--csn-border-light);cursor:pointer;display:flex;align-items:flex-start;gap:14px;transition:background .12s}
+.csn-product:hover{background:var(--csn-bg-soft)}
+.csn-product.selected{background:var(--csn-accent-light)}
+.csn-product.selected::before{content:"";position:absolute;left:0;width:3px;height:100%;background:var(--csn-primary)}
+.csn-product-img{width:60px;height:60px;border-radius:var(--csn-radius);background:var(--csn-bg-soft);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--csn-primary);flex-shrink:0;border:1px solid var(--csn-border-light);letter-spacing:.04em;overflow:hidden;position:relative}
+.csn-product-img img{width:100%;height:100%;object-fit:contain;display:block;background:#fff;padding:3px;box-sizing:border-box}
+.csn-product-img-placeholder{font-size:11px;font-weight:700;color:var(--csn-primary);letter-spacing:.04em}
+.csn-product.selected .csn-product-img{background:#fff;border-color:var(--csn-primary)}
+
+/* Imagen grande en el panel de detalle */
+.csn-detail-image{width:100%;aspect-ratio:1/1;max-height:220px;border:1px solid var(--csn-border-light);border-radius:var(--csn-radius);background:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:12px;overflow:hidden;position:relative}
+.csn-detail-image img{max-width:100%;max-height:100%;object-fit:contain;padding:8px;box-sizing:border-box}
+.csn-detail-image-placeholder{color:var(--csn-text-muted);font-size:12px;text-align:center;padding:1.5rem}
+.csn-detail-image-placeholder-icon{font-size:38px;color:var(--csn-border);display:block;margin-bottom:6px}
+.csn-product-body{flex:1;min-width:0}
+.csn-product-row1{display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap}
+.csn-product-brand{font-size:11px;color:var(--csn-primary);text-transform:uppercase;font-weight:700;letter-spacing:.04em}
+.csn-product-status{font-size:10px;padding:1px 7px;border-radius:8px;background:var(--csn-bg-muted);color:var(--csn-text-soft);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.csn-product-status.legacy{background:#fff7ed;color:var(--csn-warning)}
+.csn-product-status.discontinued{background:#fef2f2;color:var(--csn-danger)}
+.csn-product-name{font-weight:600;font-size:13px;line-height:1.4;color:var(--csn-text)}
+.csn-product-meta{font-size:11px;color:var(--csn-text-muted);margin-top:4px;display:flex;gap:10px;flex-wrap:wrap}
+.csn-product-meta span{display:inline-flex;align-items:center;gap:3px}
+
+/* Panel detalle */
+.csn-detail{padding:18px;font-size:13px}
+.csn-detail-empty{color:var(--csn-text-muted);text-align:center;padding:3rem 1rem;font-size:13px}
+.csn-detail-empty-icon{font-size:32px;color:var(--csn-border);margin-bottom:8px;display:block}
+.csn-detail-brand{font-size:11px;color:var(--csn-primary);text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-bottom:6px}
+.csn-detail h3{font-size:16px;margin:0 0 4px;font-weight:600;color:var(--csn-text);line-height:1.35}
+.csn-detail-model{font-family:ui-monospace,SFMono-Regular,monospace;color:var(--csn-text-muted);font-size:11px;margin:0 0 12px}
+.csn-detail-desc{font-size:12px;color:var(--csn-text-soft);line-height:1.55;margin:8px 0 14px;padding-bottom:14px;border-bottom:1px solid var(--csn-border-light)}
+.csn-detail-section{margin-bottom:11px}
+.csn-detail-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--csn-text-muted);margin-bottom:3px;font-weight:600}
+.csn-detail-value{font-size:13px;color:var(--csn-text);line-height:1.45}
+.csn-detail-tags{display:flex;flex-wrap:wrap;gap:4px}
+.csn-detail-tag{font-size:11px;padding:2px 8px;border-radius:4px;background:var(--csn-bg-soft);color:var(--csn-text-soft);border:1px solid var(--csn-border-light)}
+.csn-detail-actions{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap;padding-top:14px;border-top:1px solid var(--csn-border-light)}
+
+/* Modal */
+.csn-modal-bg{background:rgba(14,22,34,.55);position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;padding:1rem;z-index:100;backdrop-filter:blur(2px)}
+.csn-modal{background:var(--csn-bg);border-radius:var(--csn-radius-lg);border:1px solid var(--csn-border);width:100%;max-width:520px;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.25)}
+.csn-modal-head{padding:16px 20px;border-bottom:1px solid var(--csn-border);display:flex;align-items:flex-start;gap:12px;background:var(--csn-bg-soft)}
+.csn-modal-icon{width:36px;height:36px;border-radius:var(--csn-radius);background:var(--csn-primary);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;font-size:14px}
+.csn-modal-title{font-size:15px;font-weight:600;margin:0;color:var(--csn-text)}
+.csn-modal-sub{font-size:12px;color:var(--csn-text-soft);margin:2px 0 0;line-height:1.45}
+.csn-modal-close{margin-left:auto;cursor:pointer;color:var(--csn-text-muted);font-size:20px;line-height:1;padding:2px 6px;background:none;border:none;font-family:inherit;border-radius:4px;transition:all .12s}
+.csn-modal-close:hover{background:var(--csn-bg-muted);color:var(--csn-text)}
+.csn-modal-body{padding:18px 20px;overflow-y:auto;flex:1}
+.csn-modal-foot{padding:12px 20px;border-top:1px solid var(--csn-border);display:flex;gap:8px;justify-content:flex-end;background:var(--csn-bg-soft)}
+
+.csn-form-group{margin-bottom:14px}
+.csn-form-label{font-size:12px;color:var(--csn-text-soft);margin-bottom:5px;display:block;font-weight:600}
+.csn-select,.csn-input{width:100%;height:38px;padding:0 12px;border-radius:var(--csn-radius);border:1px solid var(--csn-border);background:var(--csn-bg);font-size:13px;color:var(--csn-text);font-family:inherit;transition:border-color .15s}
+.csn-select:focus,.csn-input:focus{outline:none;border-color:var(--csn-primary)}
+.csn-helper{font-size:11px;color:var(--csn-text-muted);background:var(--csn-bg-soft);padding:9px 12px;border-radius:var(--csn-radius);line-height:1.5;border-left:3px solid var(--csn-primary)}
+
+.csn-progress{margin-top:14px;background:var(--csn-bg-muted);border-radius:99px;height:6px;overflow:hidden}
+.csn-progress-bar{height:100%;background:var(--csn-primary);transition:width .3s ease;width:0;border-radius:99px}
+.csn-log{margin-top:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;background:#0e1622;border-radius:var(--csn-radius);padding:10px 12px;max-height:170px;overflow-y:auto;color:#a8b8d0;line-height:1.55;border:1px solid #1f2b3d}
+.csn-log-line{margin:0;padding:1px 0}
+.csn-log-line.success{color:#67c682}
+.csn-log-line.warning{color:#f0b352}
+.csn-log-line.danger{color:#e76b6b}
+
+/* Tab Quality */
+.csn-quality{padding:18px}
+.csn-gates{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:18px}
+.csn-gate{padding:12px 14px;border-radius:var(--csn-radius);border:1px solid var(--csn-border);background:var(--csn-bg)}
+.csn-gate.ok{border-left:3px solid var(--csn-success)}
+.csn-gate.fail{border-left:3px solid var(--csn-danger)}
+.csn-gate-id{font-size:10px;color:var(--csn-text-muted);text-transform:uppercase;letter-spacing:.06em;font-weight:700;font-family:ui-monospace,monospace}
+.csn-gate-name{font-size:13px;font-weight:600;margin:2px 0;color:var(--csn-text)}
+.csn-gate-detail{font-size:11px;color:var(--csn-text-muted)}
+.csn-section-title{font-size:14px;font-weight:600;margin:18px 0 10px;color:var(--csn-text);padding-bottom:6px;border-bottom:1px solid var(--csn-border-light)}
+.csn-table{width:100%;border-collapse:collapse;font-size:12px}
+.csn-table th{text-align:left;font-size:11px;text-transform:uppercase;color:var(--csn-text-muted);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--csn-border);letter-spacing:.05em;background:var(--csn-bg-soft)}
+.csn-table td{padding:7px 10px;border-bottom:1px solid var(--csn-border-light);color:var(--csn-text)}
+.csn-bar{height:6px;background:var(--csn-bg-muted);border-radius:3px;overflow:hidden;width:100px;display:inline-block;vertical-align:middle}
+.csn-bar-fill{height:100%;background:var(--csn-primary);border-radius:3px}
+
+.csn-empty{padding:3rem 1rem;text-align:center;color:var(--csn-text-muted);font-size:13px}
+.csn-empty-strong{color:var(--csn-text);font-weight:600;margin-bottom:4px;font-size:14px}
+.csn-empty-icon{font-size:36px;color:var(--csn-border);margin-bottom:10px}
+
+/* === Admin / login === */
+.csn-user-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:14px;font-size:11px;font-weight:600;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.04em;cursor:pointer}
+.csn-user-badge:hover{background:rgba(255,255,255,.22)}
+.csn-user-badge.admin{background:#fff;color:var(--csn-primary);border-color:#fff}
+.csn-server-dot{width:7px;height:7px;border-radius:50%;background:#7cd882;display:inline-block;box-shadow:0 0 0 2px rgba(124,216,130,.25)}
+.csn-server-dot.offline{background:#999;box-shadow:none}
+
+.csn-admin-only{display:none}
+.csn-mode-admin .csn-admin-only{display:inline-flex}
+.csn-admin-banner{background:linear-gradient(90deg, rgba(0,60,126,.05), rgba(0,102,204,.08));padding:8px 18px;font-size:12px;color:var(--csn-primary);border-bottom:1px solid var(--csn-border-light);display:flex;align-items:center;gap:10px}
+
+.csn-pre-log{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;background:#0e1622;color:#a8b8d0;padding:10px 12px;border-radius:6px;max-height:220px;overflow-y:auto;white-space:pre-wrap;line-height:1.5;margin-top:10px}
+.csn-claude-prompt{background:var(--csn-bg-soft);border:1px solid var(--csn-border);border-radius:6px;padding:12px;margin-top:10px;font-family:ui-monospace,monospace;font-size:11px;max-height:240px;overflow-y:auto;white-space:pre-wrap;line-height:1.5}
+</style>
+
+<div class="csn-app">
+  <div class="csn-header">
+    <div class="csn-logo">
+      <span class="csn-logo-mark">CS</span>
+      <span>colsein</span>
+    </div>
+    <span class="csn-logo-divider"></span>
+    <span class="csn-tagline">Selector inteligente de equipos · Automatización industrial</span>
+    <span class="csn-header-spacer"></span>
+    <div id="csn-source-info" style="font-size:11px;color:rgba(255,255,255,.85);text-align:right;margin-right:14px"></div>
+    <button id="csn-user-badge" class="csn-user-badge" title="Click para iniciar sesión">
+      <span id="csn-server-dot" class="csn-server-dot offline" title="Estado del servidor"></span>
+      <span id="csn-user-label">Invitado</span>
+    </button>
+    <div class="csn-header-stats" id="csn-header-stats"></div>
+  </div>
+
+  <div class="csn-bar">
+    <div class="csn-tabs">
+      <button class="csn-tab active" data-view="catalog">Catálogo</button>
+      <button class="csn-tab" data-view="quality">Calidad de datos</button>
+    </div>
+    <div class="csn-actions">
+      <button class="csn-btn" data-modal="import"><span class="csn-btn-icon">⇑</span>Importar JSON</button>
+      <button class="csn-btn" data-modal="export"><span class="csn-btn-icon">⇓</span>Exportar</button>
+      <button class="csn-btn csn-btn-primary" data-modal="addproduct"><span class="csn-btn-icon">＋</span>Agregar producto</button>
+      <button class="csn-btn csn-admin-only" data-modal="findmore"><span class="csn-btn-icon">🔎</span>Buscar productos</button>
+      <button class="csn-btn csn-admin-only" data-modal="updatefilters"><span class="csn-btn-icon">⚡</span>Actualizar filtros</button>
+      <button class="csn-btn" data-modal="refine"><span class="csn-btn-icon">⚙</span>Refinar</button>
+    </div>
+  </div>
+
+  <div id="csn-view-catalog" class="csn-body">
+    <div class="csn-pane">
+      <div class="csn-section-head">Categorías</div>
+      <div class="csn-search-box">
+        <div class="csn-search-wrap">
+          <span class="csn-search-icon">⌕</span>
+          <input type="text" class="csn-search" id="csn-tree-search" placeholder="Buscar categoría…">
+        </div>
+      </div>
+      <div class="csn-tree" id="csn-tree"></div>
+    </div>
+
+    <div class="csn-pane csn-center">
+      <div id="csn-breadcrumb" class="csn-breadcrumb"></div>
+      <div class="csn-search-box" style="border-bottom:1px solid var(--csn-border-light)">
+        <div class="csn-search-wrap">
+          <span class="csn-search-icon">⌕</span>
+          <input type="text" class="csn-search" id="csn-prod-search" placeholder="Buscar por modelo, marca o descripción…">
+        </div>
+      </div>
+      <div id="csn-filters-block" class="csn-filters-block"></div>
+      <div id="csn-results-bar" class="csn-results-bar"></div>
+      <div id="csn-products" class="csn-products"></div>
+    </div>
+
+    <div class="csn-pane">
+      <div class="csn-section-head">Detalle del producto</div>
+      <div id="csn-detail" class="csn-detail">
+        <div class="csn-detail-empty">
+          <span class="csn-detail-empty-icon">◇</span>
+          Selecciona un producto para ver el detalle
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="csn-view-quality" style="display:none">
+    <div id="csn-quality" class="csn-quality"></div>
+  </div>
+
+  <div id="csn-modal-host"></div>
+</div>
+
+<script>
+
+const DATA = __DATA_JSON__;
+(function(){
+const state = {
+  products: DATA.products_initial.slice(),
+  remaining: DATA.products_remaining.slice(),
+  selectedNode: null,
+  selectedProduct: null,
+  expandedNodes: new Set(["root"]),
+  // filtros: universales (siempre visibles) + por hoja (cascada)
+  universalFilters: {},   // {brand: "sick", industries: "alimentos", ...}
+  leafFilters: {},        // {photo_sensor_type: "diffuse", ...}
+  treeQuery: "",
+  productQuery: "",
+  view: "catalog",
+  operations: [],
+};
+DATA.taxonomy.filter(n=>n.level<=1).forEach(n=>state.expandedNodes.add(n.id));
+
+const byBrand = {};
+DATA.brands.forEach(b=>byBrand[b.id]=b);
+const byNode = {};
+DATA.taxonomy.forEach(n=>byNode[n.id]=n);
+const childrenOf = {};
+DATA.taxonomy.forEach(n=>{
+  const k=n.parent||"_";
+  if(!childrenOf[k])childrenOf[k]=[];
+  childrenOf[k].push(n.id);
+});
+
+// shorthand DOM helpers
+const $ = (s,r)=>(r||document).querySelector(s);
+const $$ = (s,r)=>Array.from((r||document).querySelectorAll(s));
+function el(tag,attrs){
+  const e=document.createElement(tag);
+  if(attrs)for(const k in attrs){
+    if(k==="class")e.className=attrs[k];
+    else if(k==="style")e.setAttribute("style",attrs[k]);
+    else if(k.startsWith("on"))e.addEventListener(k.slice(2),attrs[k]);
+    else if(k.startsWith("data-")||k==="href"||k==="target"||k==="type"||k==="value"||k==="min"||k==="max"||k==="step"||k==="checked"||k==="placeholder"||k==="id")e.setAttribute(k,attrs[k]);
+    else e[k]=attrs[k];
+  }
+  for(let i=2;i<arguments.length;i++){
+    const c=arguments[i];
+    if(c==null||c===false)continue;
+    if(Array.isArray(c)){c.forEach(x=>{if(x!=null&&x!==false)e.appendChild(typeof x==="string"||typeof x==="number"?document.createTextNode(x):x);});}
+    else e.appendChild(typeof c==="string"||typeof c==="number"?document.createTextNode(c):c);
+  }
+  return e;
+}
+
+// ============ Taxonomía: helpers ============
+function descendantLeaves(nodeId){
+  if(byNode[nodeId]&&byNode[nodeId].is_leaf)return [nodeId];
+  const out=[];
+  function walk(id){
+    (childrenOf[id]||[]).forEach(k=>{
+      if(byNode[k]&&byNode[k].is_leaf)out.push(k);
+      else walk(k);
+    });
+  }
+  walk(nodeId);
+  return out;
+}
+function productsInSubtree(nodeId){
+  const set=new Set(descendantLeaves(nodeId));
+  return state.products.filter(p=>set.has(p.leaf)||(p.secondary_leaves||[]).some(l=>set.has(l)));
+}
+
+// ============ Filtros: aplicación ============
+function getAttr(p, attrId){
+  // mapeo de id de atributo declarado en leaf_filters a campo del producto compactado
+  const map = {
+    "brand":"brand", "lifecycle":"lifecycle", "ip_rating":"ip", "industries":"industries",
+    "certifications":"certs", "country_of_origin":"country", "is_software":"is_software",
+    "output_signal":"output", "industrial_protocols_supported":"protocols",
+    "wetted_materials":"wetted", "performance_level_pl":"performance_level",
+    "machine_safety_function":"safety_function",
+    "ex_marking_complete":"ex_marking", "ex_zone":"ex_zone",
+    // hoja-específicos: usan los nombres compactos directamente
+    "light_curtain_type":"lc_type", "light_curtain_height_mm":"lc_height",
+    "light_curtain_resolution_mm":"lc_resolution", "muting_integrated":"muting",
+    "photo_sensor_type":"photo_type", "photo_light_source":"photo_light",
+    "iolink_supported":"iolink", "connection_type":"connection",
+    "housing_size_series":"housing",
+    "inductive_size":"ind_size", "inductive_mounting":"ind_mounting",
+    "encoder_kind":"enc_kind", "encoder_multiturn":"enc_multi",
+    "encoder_resolution_bits":"enc_bits", "encoder_pulses_per_rev":"enc_ppr",
+    "lidar_max_range_m":"lidar_range", "lidar_scan_angle_deg":"lidar_angle",
+    "lidar_application":"lidar_app",
+    "motor_power_kw":"motor_kw", "motor_power_hp":"motor_hp",
+    "motor_voltage":"motor_v", "motor_poles":"motor_poles",
+    "motor_efficiency_class":"motor_eff", "motor_frame_size":"motor_frame",
+    "vfd_power_kw":"vfd_kw", "vfd_power_hp":"vfd_hp", "vfd_input_voltage":"vfd_v",
+    "terminal_section_mm2":"term_sec", "terminal_connection_method":"term_con",
+    "terminal_kind":"term_kind",
+    "psu_output_voltage_v":"psu_v", "psu_output_current_a":"psu_a",
+    "psu_output_power_w":"psu_w", "psu_input":"psu_in", "psu_family":"psu_fam",
+    "switch_port_count":"sw_ports", "managed_switch":"sw_managed",
+    "switch_gigabit":"sw_gigabit", "switch_layer":"sw_layer",
+    "flow_meter_dn":"flow_dn",
+    "pressure_range":"p_range", "accuracy_class":"accuracy", "sil_capable":"sil",
+    "plc_family":"plc_fam", "plc_cpu_class":"plc_cpu",
+    "hmi_screen_size":"screen_size",
+    "cable_family":"cable_fam", "cable_conductor_count":"cable_cores",
+    "cable_section_mm2":"cable_sec", "cable_application":"cable_app",
+    "enclosure_material":"encl_mat",
+    "meter_form_factor":"meter_fmt", "meter_accuracy_class":"meter_class",
+  };
+  const k = map[attrId] || attrId;
+  return p[k];
+}
+
+function matchFilter(p, attrId, kind, val){
+  const v = getAttr(p, attrId);
+  if(kind === "enum"){
+    if(typeof val === "boolean") return Boolean(v) === val;
+    return String(v) === String(val);
+  }
+  if(kind === "enum_multi"){
+    if(!Array.isArray(v)) return false;
+    return v.indexOf(val) >= 0;
+  }
+  if(kind === "enum_present"){
+    // val: "yes" | "no"
+    const present = v != null && v !== "" && v !== false;
+    return val === "yes" ? present : !present;
+  }
+  return false;
+}
+
+function applyAllFilters(list){
+  // 1. universal filters
+  for(const fid in state.universalFilters){
+    const val = state.universalFilters[fid];
+    if(val == null || val === "") continue;
+    const fdef = DATA.universal_filters.find(f=>f.id===fid);
+    if(!fdef) continue;
+    list = list.filter(p => matchFilter(p, fid, fdef.kind, val));
+  }
+  // 2. text query (sobre nombre, modelo, marca, descripción)
+  if(state.productQuery){
+    const q = state.productQuery.toLowerCase();
+    list = list.filter(p => (p.name+" "+p.model+" "+p.brand+" "+(p.desc||"")).toLowerCase().includes(q));
+  }
+  // 3. leaf filters (cascada estilo SICK)
+  if(state.selectedNode){
+    const filters = DATA.leaf_filters[state.selectedNode];
+    if(filters){
+      for(const fdef of filters){
+        const val = state.leafFilters[fdef.id];
+        if(val == null || val === "") continue;
+        list = list.filter(p => matchFilter(p, fdef.id, fdef.kind, val));
+      }
+    }
+  }
+  return list;
+}
+
+function baseSubtreeProducts(nodeId){
+  if(!nodeId) return state.products;
+  return productsInSubtree(nodeId);
+}
+
+function visibleProducts(){
+  return applyAllFilters(baseSubtreeProducts(state.selectedNode));
+}
+
+function countInSubtree(nodeId){
+  // contar respetando filtros universales + texto, pero NO leaf filters (para árbol)
+  let list = productsInSubtree(nodeId);
+  for(const fid in state.universalFilters){
+    const val = state.universalFilters[fid];
+    if(val == null || val === "") continue;
+    const fdef = DATA.universal_filters.find(f=>f.id===fid);
+    if(!fdef) continue;
+    list = list.filter(p => matchFilter(p, fid, fdef.kind, val));
+  }
+  if(state.productQuery){
+    const q = state.productQuery.toLowerCase();
+    list = list.filter(p => (p.name+" "+p.model+" "+p.brand+" "+(p.desc||"")).toLowerCase().includes(q));
+  }
+  return list.length;
+}
+
+// ============ Recolectar valores únicos por filtro ============
+function collectFilterValues(products, attrId, kind){
+  // devuelve [{value, count, label}]
+  const counts = {};
+  products.forEach(p=>{
+    const v = getAttr(p, attrId);
+    if(kind === "enum"){
+      if(v == null || v === "") return;
+      const key = (typeof v === "boolean") ? v : String(v);
+      counts[key] = (counts[key]||0) + 1;
+    } else if(kind === "enum_multi"){
+      if(!Array.isArray(v)) return;
+      v.forEach(x => { counts[String(x)] = (counts[String(x)]||0)+1; });
+    } else if(kind === "enum_present"){
+      const present = v != null && v !== "" && v !== false;
+      const k = present ? "yes" : "no";
+      counts[k] = (counts[k]||0) + 1;
+    }
+  });
+  return Object.entries(counts).map(([value, count]) => ({
+    value: (value === "true") ? true : (value === "false" ? false : (isFinite(value) && value !== "" && !isNaN(parseFloat(value)) && /^[\d.\-]+$/.test(value) ? parseFloat(value) : value)),
+    rawKey: value,
+    count,
+  })).sort((a,b)=>{
+    // si los valores son numéricos, ordenarlos numéricamente
+    if(typeof a.value === "number" && typeof b.value === "number") return a.value - b.value;
+    return String(a.value).localeCompare(String(b.value));
+  });
+}
+
+function formatFilterValue(v, attrId){
+  if(typeof v === "boolean") return v ? "Sí" : "No";
+  if(attrId === "industries" || attrId === "lifecycle" || attrId === "lc_type" || attrId === "photo_sensor_type" || attrId === "photo_type"){
+    return String(v).replace(/_/g," ");
+  }
+  if(v === "yes") return "Sí";
+  if(v === "no") return "No";
+  return String(v);
+}
+
+// ============ Render: header con stats ============
+function renderHeader(){
+  const populated = new Set(state.products.map(p=>p.leaf)).size;
+  const visible = visibleProducts().length;
+  const stats = [
+    {l:"Productos cargados", v:state.products.length},
+    {l:"Visibles", v:visible},
+    {l:"Pendientes", v:state.remaining.length},
+    {l:"Marcas", v:DATA.brands.length},
+  ];
+  const c = $("#csn-header-stats");
+  if(!c) return;
+  c.innerHTML = "";
+  stats.forEach(s => c.appendChild(el("div",{class:"csn-header-stat"},
+    el("strong",{}, String(s.v)),
+    s.l
+  )));
+}
+
+// ============ Render: árbol ============
+function renderTree(){
+  const root = $("#csn-tree"); root.innerHTML = "";
+  // entrada "Todos los productos"
+  root.appendChild(renderTreeNode({id:"_all", label:"Todos los productos", level:0, is_leaf:false}, true));
+  const q = state.treeQuery.toLowerCase().trim();
+  function shouldShow(nid){
+    if(!q) return true;
+    if((byNode[nid].label||"").toLowerCase().includes(q)) return true;
+    return (childrenOf[nid]||[]).some(shouldShow);
+  }
+  DATA.taxonomy.filter(n=>n.level===1).forEach(t=>{
+    if(shouldShow(t.id)) root.appendChild(renderTreeNode(t, false));
+  });
+}
+function renderTreeNode(node, isAll){
+  const expanded = state.expandedNodes.has(node.id);
+  const kids = childrenOf[node.id] || [];
+  const hasKids = kids.length > 0;
+  const count = isAll ? applyAllFilters(state.products).length : countInSubtree(node.id);
+  const selected = (state.selectedNode || "_all") === node.id;
+  const item = el("div", {
+    class: "csn-node" + (selected?" selected":""),
+    style: "padding-left:"+(8 + (node.level||0)*14)+"px",
+    onclick: (e)=>{
+      if(e.target.classList.contains("csn-node-toggle")) return;
+      state.selectedNode = isAll ? null : node.id;
+      state.selectedProduct = null;
+      // limpiar leaf filters cuando cambia de hoja
+      state.leafFilters = {};
+      renderAll();
+    }
+  },
+    el("span",{class:"csn-node-toggle", onclick:(e)=>{
+      e.stopPropagation();
+      if(state.expandedNodes.has(node.id)) state.expandedNodes.delete(node.id);
+      else state.expandedNodes.add(node.id);
+      renderTree();
+    }}, hasKids ? (expanded ? "▼" : "▶") : ""),
+    el("span",{class:"csn-node-label"}, node.label),
+    el("span",{class:"csn-node-count"}, String(count)),
+  );
+  const wrap = el("div", {}, item);
+  if(expanded && hasKids){
+    kids.forEach(kid => { if(byNode[kid]) wrap.appendChild(renderTreeNode(byNode[kid], false)); });
+  }
+  return wrap;
+}
+
+// ============ Render: breadcrumb ============
+function renderBreadcrumb(){
+  const c = $("#csn-breadcrumb"); c.innerHTML = "";
+  c.appendChild(el("span", {class:"csn-bc-link", onclick:()=>{
+    state.selectedNode=null; state.selectedProduct=null; state.leafFilters={};
+    renderAll();
+  }}, "Catálogo"));
+  if(state.selectedNode){
+    const path = state.selectedNode.split(".");
+    let acc = "";
+    path.forEach((seg,i)=>{
+      acc = i===0 ? seg : acc+"."+seg;
+      const node = byNode[acc];
+      if(!node) return;
+      c.appendChild(el("span", {class:"csn-bc-sep"}, "›"));
+      const isLast = i === path.length-1;
+      const lockedAcc = acc;
+      c.appendChild(el("span", {
+        class: isLast ? "csn-bc-current" : "csn-bc-link",
+        onclick: isLast ? null : ()=>{
+          state.selectedNode = lockedAcc; state.selectedProduct = null; state.leafFilters = {};
+          renderAll();
+        }
+      }, node.label));
+    });
+  }
+}
+
+// ============ Render: filtros progresivos ============
+function renderFilters(){
+  const c = $("#csn-filters-block"); c.innerHTML = "";
+
+  // Decidir qué filtros mostrar
+  const universal = DATA.universal_filters;
+  const leafSpec = state.selectedNode ? DATA.leaf_filters[state.selectedNode] : null;
+
+  // base = productos del subtree (sin aplicar filtros de hoja, pero sí universales)
+  const base = baseSubtreeProducts(state.selectedNode);
+
+  // Header
+  const anyActive = Object.keys(state.universalFilters).some(k=>state.universalFilters[k]!=null) ||
+                    Object.keys(state.leafFilters).some(k=>state.leafFilters[k]!=null);
+  c.appendChild(el("div",{class:"csn-filters-title"},
+    leafSpec ? "Refinar por características técnicas" : "Filtros",
+    anyActive ? el("button",{class:"csn-filters-clear", onclick:()=>{
+      state.universalFilters={}; state.leafFilters={};
+      renderAll();
+    }}, "✕ Limpiar todo") : null
+  ));
+
+  // 1. Filtros universales
+  universal.forEach(fdef => {
+    const grp = renderFilterGroup(fdef, base, state.universalFilters, "universal");
+    if(grp) c.appendChild(grp);
+  });
+
+  // 2. Filtros de hoja (cascada)
+  if(leafSpec){
+    let progressiveBase = base.slice();
+    // aplicar universales para no repetir
+    for(const fid in state.universalFilters){
+      const val = state.universalFilters[fid];
+      if(val == null || val === "") continue;
+      const ud = universal.find(u=>u.id===fid);
+      if(!ud) continue;
+      progressiveBase = progressiveBase.filter(p=>matchFilter(p,fid,ud.kind,val));
+    }
+    // aplicar uno a uno los leaf filters anteriores para que cada filtro siguiente
+    // sólo muestre opciones que dejarán productos
+    leafSpec.forEach((fdef, idx) => {
+      const grp = renderFilterGroup(fdef, progressiveBase, state.leafFilters, "leaf");
+      if(grp) c.appendChild(grp);
+      // aplicar el filtro actual al progressive base para el siguiente
+      const val = state.leafFilters[fdef.id];
+      if(val != null && val !== ""){
+        progressiveBase = progressiveBase.filter(p => matchFilter(p, fdef.id, fdef.kind, val));
+      }
+    });
+  }
+}
+
+function renderFilterGroup(fdef, base, store, scope){
+  const values = collectFilterValues(base, fdef.id, fdef.kind);
+  if(values.length < 2) return null; // no tiene sentido un filtro con <2 opciones
+  const currentVal = store[fdef.id];
+
+  // Para cada valor: contar cuántos quedarían si lo aplicamos sobre `base`
+  // (esto da la "cuenta lookahead" estilo SICK)
+  const valuesWithLookahead = values.map(opt => {
+    const filteredCount = base.filter(p => matchFilter(p, fdef.id, fdef.kind, opt.value)).length;
+    return Object.assign({}, opt, {lookaheadCount: filteredCount});
+  });
+
+  const isActive = currentVal != null && currentVal !== "";
+  const grp = el("div", {class:"csn-filter-group"});
+  grp.appendChild(el("div", {class:"csn-filter-label" + (isActive?" csn-filter-label-active":"")},
+    fdef.label,
+    isActive ? el("button",{class:"csn-filters-clear", style:"margin-left:auto", onclick:()=>{
+      delete store[fdef.id]; renderAll();
+    }}, "Limpiar") : null
+  ));
+  const pills = el("div", {class:"csn-filter-pills"});
+  valuesWithLookahead.forEach(opt => {
+    const isSelected = currentVal != null && (
+      typeof currentVal === "boolean" ? currentVal === opt.value : String(currentVal) === String(opt.value)
+    );
+    const isDisabled = !isSelected && opt.lookaheadCount === 0;
+    const lockedFid = fdef.id;
+    const lockedVal = opt.value;
+    pills.appendChild(el("span", {
+      class: "csn-pill" + (isSelected?" active":"") + (isDisabled?" disabled":""),
+      onclick: isDisabled ? null : ()=>{
+        if(isSelected) delete store[lockedFid];
+        else store[lockedFid] = lockedVal;
+        renderAll();
+      }
+    },
+      formatFilterValue(opt.value, fdef.id),
+      el("span",{class:"csn-pill-count"}, String(opt.lookaheadCount)),
+      isSelected ? el("span",{class:"csn-pill-x"}, "✕") : null
+    ));
+  });
+  grp.appendChild(pills);
+  return grp;
+}
+
+// ============ Imagen del producto (con fallback URL → blob local → placeholder) ============
+function getImageSrc(p){
+  // prioridad: 1) image_url externa (la del fabricante)
+  //            2) endpoint local /api/products/<id>/image (si serve está corriendo)
+  //            3) placeholder
+  if(p.image_url) return p.image_url;
+  if(p.image_local){
+    return "/api/products/" + encodeURIComponent(p.id) + "/image";
+  }
+  return null;
+}
+
+function productThumb(p){
+  const src = getImageSrc(p);
+  const wrap = el("div",{class:"csn-product-img"});
+  if(src){
+    const img = el("img",{src:src, alt:p.name, loading:"lazy"});
+    img.addEventListener("error", function(){
+      // Si falló la URL externa pero hay blob local, intentar el endpoint
+      if(p.image_local && img.src.indexOf("/api/products/") < 0){
+        img.src = "/api/products/" + encodeURIComponent(p.id) + "/image";
+      } else {
+        // Reemplazar por placeholder
+        wrap.innerHTML = "";
+        wrap.appendChild(el("span",{class:"csn-product-img-placeholder"},
+          (p.brand||"").slice(0,3).toUpperCase()));
+      }
+    });
+    wrap.appendChild(img);
+  } else {
+    wrap.appendChild(el("span",{class:"csn-product-img-placeholder"},
+      (p.brand||"").slice(0,3).toUpperCase()));
+  }
+  return wrap;
+}
+
+function productImageBig(p){
+  const src = getImageSrc(p);
+  const wrap = el("div",{class:"csn-detail-image"});
+  if(src){
+    const img = el("img",{src:src, alt:p.name});
+    img.addEventListener("error", function(){
+      if(p.image_local && img.src.indexOf("/api/products/") < 0){
+        img.src = "/api/products/" + encodeURIComponent(p.id) + "/image";
+      } else {
+        wrap.innerHTML = "";
+        wrap.appendChild(el("div",{class:"csn-detail-image-placeholder"},
+          el("span",{class:"csn-detail-image-placeholder-icon"}, "▭"),
+          "Sin imagen disponible"
+        ));
+      }
+    });
+    wrap.appendChild(img);
+  } else {
+    wrap.appendChild(el("div",{class:"csn-detail-image-placeholder"},
+      el("span",{class:"csn-detail-image-placeholder-icon"}, "▭"),
+      "Sin imagen disponible"
+    ));
+  }
+  return wrap;
+}
+
+// ============ Render: lista de productos ============
+function renderProducts(){
+  const list = visibleProducts();
+  // results bar
+  const bar = $("#csn-results-bar");
+  bar.innerHTML = "";
+  bar.appendChild(el("div",{class:"csn-results-count"},
+    el("strong",{}, String(list.length)), " producto" + (list.length!==1?"s":"") + " " +
+    (state.selectedNode ? "en esta categoría" : "en el catálogo")
+  ));
+  if(list.length > 0){
+    const someoneSelected = list.length === 1;
+    bar.appendChild(el("span",{style:"font-size:11px;color:var(--csn-text-muted)"},
+      someoneSelected ? "Producto único — listo para revisar" : ""
+    ));
+  }
+
+  const c = $("#csn-products"); c.innerHTML = "";
+  if(!list.length){
+    c.appendChild(el("div",{class:"csn-empty"},
+      el("div",{class:"csn-empty-icon"}, "○"),
+      el("div",{class:"csn-empty-strong"}, "Sin coincidencias"),
+      "Refina los filtros o usa la categoría padre."
+    ));
+    return;
+  }
+  list.slice(0,80).forEach(p=>{
+    const sel = state.selectedProduct && state.selectedProduct.id === p.id;
+    const lc = p.lifecycle || "active";
+    const lcLabel = {active:"activo",legacy:"legacy",discontinued:"descontinuado"}[lc] || lc;
+    const meta = [];
+    if(p.model) meta.push(el("span",{}, "Mod. " + p.model));
+    if(p.ip) meta.push(el("span",{}, p.ip));
+    if(p.measured) meta.push(el("span",{}, p.measured.replace(/_/g," ")));
+    if(p.is_software) meta.push(el("span",{}, "software"));
+    // mostrar specs específicas si existen
+    if(p.lc_height) meta.push(el("span",{}, p.lc_height + "mm campo"));
+    if(p.lc_resolution) meta.push(el("span",{}, "res. " + p.lc_resolution + "mm"));
+    if(p.motor_hp) meta.push(el("span",{}, p.motor_hp + " HP"));
+    if(p.motor_eff) meta.push(el("span",{}, p.motor_eff));
+    if(p.vfd_hp) meta.push(el("span",{}, p.vfd_hp + " HP"));
+    if(p.term_sec) meta.push(el("span",{}, p.term_sec + " mm²"));
+    if(p.psu_v && p.psu_a) meta.push(el("span",{}, p.psu_v + "V " + p.psu_a + "A"));
+    if(p.sw_ports) meta.push(el("span",{}, p.sw_ports + " puertos"));
+
+    c.appendChild(el("div",{
+      class:"csn-product" + (sel?" selected":""),
+      style:"position:relative",
+      onclick:()=>{ state.selectedProduct = p; renderProducts(); renderDetail(); }
+    },
+      productThumb(p),
+      el("div",{class:"csn-product-body"},
+        el("div",{class:"csn-product-row1"},
+          el("span",{class:"csn-product-brand"}, (byBrand[p.brand]&&byBrand[p.brand].name) || p.brand),
+          el("span",{class:"csn-product-status"+(lc!=="active"?" "+lc:"")}, lcLabel)
+        ),
+        el("div",{class:"csn-product-name"}, p.name),
+        meta.length ? el("div",{class:"csn-product-meta"}, meta) : null
+      )
+    ));
+  });
+  if(list.length > 80){
+    c.appendChild(el("div",{class:"csn-empty",style:"font-size:11px;padding:1.5rem"},
+      "Mostrando 80 de " + list.length + " — refina los filtros para ver más."));
+  }
+}
+
+// ============ Render: panel detalle ============
+function renderDetail(){
+  const c = $("#csn-detail"); c.innerHTML = "";
+  const p = state.selectedProduct;
+  if(!p){
+    c.appendChild(el("div",{class:"csn-detail-empty"},
+      el("span",{class:"csn-detail-empty-icon"}, "◇"),
+      "Selecciona un producto para ver el detalle"
+    ));
+    return;
+  }
+  const brand = byBrand[p.brand] || {name: p.brand};
+  // Imagen grande arriba del todo
+  c.appendChild(productImageBig(p));
+  c.appendChild(el("div",{class:"csn-detail-brand"}, brand.name));
+  c.appendChild(el("h3",{}, p.name));
+  if(p.model) c.appendChild(el("div",{class:"csn-detail-model"}, "Mod. " + p.model));
+  if(p.desc) c.appendChild(el("div",{class:"csn-detail-desc"}, p.desc));
+
+  function section(label, content){
+    if(!content) return null;
+    return el("div",{class:"csn-detail-section"},
+      el("div",{class:"csn-detail-label"}, label),
+      typeof content === "string" ? el("div",{class:"csn-detail-value"}, content) : content
+    );
+  }
+  function tags(arr){
+    if(!arr || !arr.length) return null;
+    return el("div",{class:"csn-detail-tags"}, arr.map(t => el("span",{class:"csn-detail-tag"}, String(t))));
+  }
+  function range(r, unit){
+    if(!r) return null;
+    return r.min.value + " a " + r.max.value + " " + (unit || r.min.unit || "");
+  }
+
+  const leafLabel = byNode[p.leaf] ? byNode[p.leaf].label : p.leaf;
+  const sects = [
+    ["Categoría", leafLabel],
+    p.measured ? ["Variable medida", p.measured.replace(/_/g," ")] : null,
+    p.principle ? ["Principio", p.principle.replace(/_/g," ")] : null,
+    p.accuracy ? ["Precisión", p.accuracy] : null,
+    // cortinas de luz
+    p.lc_type ? ["Tipo", p.lc_type === "safety" ? "De seguridad (PL " + (p.performance_level||"e") + ")" : (p.lc_type === "automation" ? "Automatización" : "Conmutación")] : null,
+    p.lc_height ? ["Altura del campo", p.lc_height + " mm"] : null,
+    p.lc_resolution ? ["Resolución", p.lc_resolution + " mm"] : null,
+    p.muting === true ? ["Muting", "Integrado"] : null,
+    // motor
+    p.motor_hp ? ["Potencia", p.motor_hp + " HP (" + p.motor_kw + " kW)"] : null,
+    p.motor_v ? ["Voltaje", p.motor_v + " V"] : null,
+    p.motor_poles ? ["Polos", String(p.motor_poles)] : null,
+    p.motor_eff ? ["Eficiencia", p.motor_eff] : null,
+    p.motor_frame ? ["Frame", p.motor_frame] : null,
+    // VFD
+    p.vfd_hp ? ["Potencia", p.vfd_hp + " HP (" + p.vfd_kw + " kW)"] : null,
+    p.vfd_v ? ["Entrada", p.vfd_v + " V"] : null,
+    // bornes
+    p.term_sec ? ["Sección", p.term_sec + " mm²"] : null,
+    p.term_con ? ["Conexión", p.term_con] : null,
+    // PSU
+    p.psu_v ? ["Salida", p.psu_v + " V / " + p.psu_a + " A (" + p.psu_w + " W)"] : null,
+    p.psu_in ? ["Entrada AC", p.psu_in] : null,
+    // switch
+    p.sw_ports ? ["Puertos", p.sw_ports + (p.sw_gigabit ? " GbE" : " FE") + (p.sw_managed ? " · gestionado" : "")] : null,
+    // foto / inductivo
+    p.photo_type ? ["Principio detección", p.photo_type.replace(/-/g," ")] : null,
+    p.photo_light ? ["Luz", p.photo_light] : null,
+    p.ind_size ? ["Tamaño", p.ind_size] : null,
+    p.ind_mounting ? ["Montaje", p.ind_mounting] : null,
+    p.iolink === true ? ["IO-Link", "Soportado"] : null,
+    p.connection ? ["Conexión", p.connection] : null,
+    // encoder
+    p.enc_kind ? ["Tipo", p.enc_kind === "abs" ? "Absoluto" + (p.enc_multi ? " (multivuelta)" : " (monovuelta)") : "Incremental"] : null,
+    p.enc_bits ? ["Resolución", p.enc_bits + " bits"] : null,
+    p.enc_ppr ? ["Pulsos/vuelta", String(p.enc_ppr)] : null,
+    // lidar
+    p.lidar_range ? ["Alcance", p.lidar_range + " m"] : null,
+    p.lidar_angle ? ["Ángulo", p.lidar_angle + "°"] : null,
+    // generales
+    p.ip ? ["Grado IP", p.ip] : null,
+    p.ambient ? ["Temp. ambiente", range(p.ambient, "°C")] : null,
+    p.process_temp ? ["Temp. proceso", range(p.process_temp, "°C")] : null,
+    p.output && p.output.length ? ["Señal de salida", tags(p.output)] : null,
+    p.protocols && p.protocols.length ? ["Protocolos", tags(p.protocols)] : null,
+    p.certs && p.certs.length ? ["Certificaciones", tags(p.certs)] : null,
+    p.industries && p.industries.length ? ["Industrias", tags(p.industries.map(i=>i.replace(/_/g," ")))] : null,
+    p.wetted && p.wetted.length ? ["Materiales mojados", tags(p.wetted)] : null,
+    p.ex_marking ? ["Marcado Ex", p.ex_marking] : null,
+    p.ex_zone ? ["Zona Ex", Array.isArray(p.ex_zone) ? p.ex_zone.join(", ") : p.ex_zone] : null,
+    p.country ? ["País de origen", p.country] : null,
+  ];
+  sects.forEach(s => { if(s){ const r = section(s[0], s[1]); if(r) c.appendChild(r); }});
+
+  const actions = el("div",{class:"csn-detail-actions"});
+  if(p.url) actions.appendChild(el("a",{class:"csn-btn csn-btn-primary", href:p.url, target:"_blank"}, "↗ Ver en fabricante"));
+  if(p.datasheet) actions.appendChild(el("a",{class:"csn-btn", href:p.datasheet, target:"_blank"}, "📄 Datasheet"));
+  if(actions.children.length) c.appendChild(actions);
+}
+
+// ============ Modales: helpers ============
+function ts(){ return new Date().toTimeString().slice(0,8); }
+function hash(s){ let h=0; for(let i=0;i<s.length;i++) h=((h<<5)-h+s.charCodeAt(i))|0; return Math.abs(h); }
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+function logLine(le, m, t){
+  const x = el("div",{class:"csn-log-line"+(t?" "+t:"")}, m);
+  le.appendChild(x); le.scrollTop = le.scrollHeight;
+}
+
+function brandSelect(label){
+  const sel = el("select",{class:"csn-select", id:"csn-modal-brand"});
+  DATA.brands.slice().sort((a,b)=>a.name.localeCompare(b.name)).forEach(b=>{
+    const cnt = state.products.filter(p=>p.brand===b.id).length;
+    sel.appendChild(el("option",{value:b.id}, b.name + " — " + cnt + " cargados"));
+  });
+  return el("div",{class:"csn-form-group"},
+    el("label",{class:"csn-form-label"}, label), sel
+  );
+}
+
+function importBody(){
+  return el("div",{},
+    el("div",{class:"csn-form-group"},
+      el("label",{class:"csn-form-label"}, "Archivo JSON"),
+      el("input",{type:"file", id:"csn-import-file", accept:".json,application/json", class:"csn-input", style:"padding:6px 8px;line-height:1.4"})
+    ),
+    el("div",{class:"csn-form-group"},
+      el("label",{class:"csn-form-label"}, "O pega el JSON aquí"),
+      el("textarea",{id:"csn-import-text", class:"csn-input", style:"height:140px;padding:8px;font-family:ui-monospace,monospace;font-size:11px;resize:vertical", placeholder:'{"products": [...]} o array directo [{...}]'})
+    ),
+    el("div",{class:"csn-form-group"},
+      el("label",{style:"font-size:13px;display:flex;align-items:center;gap:7px"},
+        el("input",{type:"checkbox", id:"csn-import-replace"}),
+        " Reemplazar productos existentes (mismo ID)"
+      )
+    ),
+    el("div",{class:"csn-helper"},
+      "Formatos aceptados: array directo [{prod1}, {prod2}], objeto con {\"products\":[...]}, o el formato exportado del HTML.")
+  );
+}
+
+async function runImport(bar, le){
+  const fileInput = $("#csn-import-file");
+  const textInput = $("#csn-import-text");
+  const replace = $("#csn-import-replace").checked;
+  let raw;
+  if(fileInput.files && fileInput.files[0]){
+    logLine(le, "[" + ts() + "] Leyendo archivo " + fileInput.files[0].name);
+    raw = await fileInput.files[0].text();
+  } else if(textInput.value.trim()){
+    raw = textInput.value;
+  } else {
+    logLine(le, "[" + ts() + "] No hay archivo ni texto", "danger");
+    return;
+  }
+  bar.style.width = "20%";
+  let parsed;
+  try { parsed = JSON.parse(raw); }
+  catch(e){
+    logLine(le, "[" + ts() + "] JSON inválido: " + e.message, "danger");
+    return;
+  }
+  bar.style.width = "40%";
+  let items;
+  if(Array.isArray(parsed)) items = parsed;
+  else if(parsed.products) items = parsed.products;
+  else if(parsed.products_initial) items = parsed.products_initial.concat(parsed.products_remaining || []);
+  else { logLine(le, "[" + ts() + "] Formato JSON no reconocido", "danger"); return; }
+  logLine(le, "[" + ts() + "] " + items.length + " productos encontrados");
+  bar.style.width = "60%";
+  // Cargar también taxonomy si viene en el JSON
+  if(parsed.taxonomy) DATA.taxonomy = parsed.taxonomy;
+  if(parsed.brands) DATA.brands = parsed.brands;
+  if(parsed.attribute_definitions) DATA.attribute_definitions = parsed.attribute_definitions;
+  if(parsed.leaf_filters) DATA.leaf_filters = parsed.leaf_filters;
+  if(parsed.universal_filters) DATA.universal_filters = parsed.universal_filters;
+  // Reindexar
+  Object.keys(byBrand).forEach(k => delete byBrand[k]);
+  DATA.brands.forEach(b => byBrand[b.id] = b);
+  Object.keys(byNode).forEach(k => delete byNode[k]);
+  DATA.taxonomy.forEach(n => byNode[n.id] = n);
+  Object.keys(childrenOf).forEach(k => delete childrenOf[k]);
+  DATA.taxonomy.forEach(n => {
+    const k = n.parent || "_";
+    if(!childrenOf[k]) childrenOf[k] = [];
+    childrenOf[k].push(n.id);
+  });
+  // Importar productos
+  const existingIds = new Set(state.products.map(p => p.id));
+  let inserted = 0, updated = 0, skipped = 0;
+  items.forEach(raw => {
+    const p = normalizeImportedProduct(raw);
+    if(!p) { skipped++; return; }
+    if(existingIds.has(p.id)){
+      if(replace){
+        const idx = state.products.findIndex(x => x.id === p.id);
+        state.products[idx] = p;
+        updated++;
+      } else { skipped++; }
+    } else {
+      state.products.push(p);
+      existingIds.add(p.id);
+      inserted++;
+    }
+  });
+  bar.style.width = "100%";
+  logLine(le, "[" + ts() + "] ✓ Insertados: " + inserted + ", actualizados: " + updated + ", omitidos: " + skipped, "success");
+  state.operations.push({kind:"import", count: inserted+updated, ts:new Date().toISOString()});
+  updateSourceInfo("JSON importado · " + (inserted+updated) + " productos");
+  state.remaining = []; // todos cargados
+}
+
+function normalizeImportedProduct(raw){
+  // Si viene en formato compactado (id, brand, leaf...), usarlo tal cual
+  if(raw.id && raw.brand && raw.leaf) return raw;
+  // Si viene en formato completo (product_id, brand_id, primary_leaf_node_id, attributes:{})
+  if(raw.product_id && raw.brand_id){
+    const a = raw.attributes || {};
+    const out = {
+      id: raw.product_id, brand: raw.brand_id, model: raw.model_number || "",
+      name: raw.product_name, family: raw.family,
+      leaf: raw.primary_leaf_node_id,
+      desc: raw.short_description, url: raw.manufacturer_url,
+      lifecycle: a.lifecycle_status || "active",
+    };
+    if(raw.secondary_leaf_node_ids && raw.secondary_leaf_node_ids.length) out.secondary_leaves = raw.secondary_leaf_node_ids;
+    if(a.is_software) out.is_software = true;
+    // copiar atributos planos (excluyendo los meta)
+    Object.keys(a).forEach(k => {
+      if(k === "lifecycle_status" || k === "is_software") return;
+      if(a[k] != null && a[k] !== "" && (!Array.isArray(a[k]) || a[k].length)) out[k] = a[k];
+    });
+    return out;
+  }
+  return null;
+}
+
+function exportBody(){
+  return el("div",{},
+    el("div",{class:"csn-form-group"},
+      el("label",{class:"csn-form-label"}, "Nombre del archivo"),
+      el("input",{type:"text", class:"csn-input", id:"csn-export-name", value:"colsein_dataset.json"})
+    ),
+    el("div",{class:"csn-form-group"},
+      el("label",{style:"font-size:13px;display:flex;align-items:center;gap:7px"},
+        el("input",{type:"checkbox", id:"csn-export-pretty", checked:"checked"}),
+        " JSON formateado (más fácil de leer y editar con Claude AI)"
+      )
+    ),
+    el("div",{class:"csn-helper"},
+      "Se descargará un archivo con todos los productos cargados, taxonomía, atributos y filtros. " +
+      "Para usar como entrada del Python: python colsein_agent_v3.py import-json archivo.json")
+  );
+}
+
+async function runExport(bar, le){
+  const name = $("#csn-export-name").value || "colsein_dataset.json";
+  const pretty = $("#csn-export-pretty").checked;
+  bar.style.width = "30%";
+  logLine(le, "[" + ts() + "] Generando dataset…");
+  const out = {
+    stats: {
+      total_products: state.products.length,
+      total_brands: DATA.brands.length,
+      total_leaves: DATA.taxonomy.filter(n => n.is_leaf).length,
+      exported_at: new Date().toISOString(),
+    },
+    brands: DATA.brands,
+    taxonomy: DATA.taxonomy,
+    attribute_definitions: DATA.attribute_definitions,
+    leaf_filters: DATA.leaf_filters,
+    universal_filters: DATA.universal_filters,
+    products: state.products,
+  };
+  bar.style.width = "70%";
+  const json = pretty ? JSON.stringify(out, null, 2) : JSON.stringify(out);
+  const blob = new Blob([json], {type:"application/json;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  bar.style.width = "100%";
+  logLine(le, "[" + ts() + "] ✓ Descargado " + name + " (" + (json.length/1024).toFixed(1) + " KB · " + state.products.length + " productos)", "success");
+  state.operations.push({kind:"export", count: state.products.length, ts:new Date().toISOString()});
+}
+
+function addProductBody(){
+  // Formulario adaptativo: si hay una hoja seleccionada, muestra los filtros declarados como campos
+  const wrap = el("div", {});
+  // 1. Marca
+  const brandSel = el("select",{class:"csn-select", id:"csn-ap-brand"});
+  DATA.brands.slice().sort((a,b)=>a.name.localeCompare(b.name)).forEach(b=>{
+    brandSel.appendChild(el("option",{value:b.id}, b.name));
+  });
+  wrap.appendChild(el("div",{class:"csn-form-group"},
+    el("label",{class:"csn-form-label"}, "Marca *"), brandSel
+  ));
+  // 2. Categoría hoja
+  const leafSel = el("select",{class:"csn-select", id:"csn-ap-leaf"});
+  const leaves = DATA.taxonomy.filter(n => n.is_leaf).sort((a,b) => a.id.localeCompare(b.id));
+  // si hay nodo seleccionado y es hoja, ponerlo primero
+  if(state.selectedNode && byNode[state.selectedNode] && byNode[state.selectedNode].is_leaf){
+    leafSel.appendChild(el("option",{value:state.selectedNode}, byNode[state.selectedNode].label + "  ←  (seleccionada)"));
+  }
+  leaves.forEach(l => {
+    if(l.id === state.selectedNode) return;
+    leafSel.appendChild(el("option",{value:l.id}, l.label + "  [" + l.id + "]"));
+  });
+  wrap.appendChild(el("div",{class:"csn-form-group"},
+    el("label",{class:"csn-form-label"}, "Categoría hoja *"), leafSel
+  ));
+  // 3. Modelo y nombre
+  wrap.appendChild(el("div",{class:"csn-form-group"},
+    el("label",{class:"csn-form-label"}, "Modelo *"),
+    el("input",{type:"text", class:"csn-input", id:"csn-ap-model", placeholder:"ej: WL18-3P430"})
+  ));
+  wrap.appendChild(el("div",{class:"csn-form-group"},
+    el("label",{class:"csn-form-label"}, "Nombre del producto *"),
+    el("input",{type:"text", class:"csn-input", id:"csn-ap-name", placeholder:"ej: SICK WL18 sensor fotoeléctrico retro-reflectivo"})
+  ));
+  wrap.appendChild(el("div",{class:"csn-form-group"},
+    el("label",{class:"csn-form-label"}, "Descripción corta"),
+    el("textarea",{class:"csn-input", id:"csn-ap-desc", style:"height:60px;padding:8px;resize:vertical", placeholder:"Características clave en 1-2 líneas"})
+  ));
+  wrap.appendChild(el("div",{class:"csn-form-group"},
+    el("label",{class:"csn-form-label"}, "URL del fabricante"),
+    el("input",{type:"text", class:"csn-input", id:"csn-ap-url", placeholder:"https://..."})
+  ));
+  wrap.appendChild(el("div",{class:"csn-form-group"},
+    el("label",{class:"csn-form-label"}, "URL del datasheet (PDF)"),
+    el("input",{type:"text", class:"csn-input", id:"csn-ap-datasheet", placeholder:"https://...pdf"})
+  ));
+  wrap.appendChild(el("div",{class:"csn-form-group"},
+    el("label",{class:"csn-form-label"}, "URL de la imagen del producto"),
+    el("input",{type:"text", class:"csn-input", id:"csn-ap-image", placeholder:"https://...jpg / .png"})
+  ));
+  // 4. Filtros progresivos: campos dinámicos según hoja seleccionada
+  const dynBlock = el("div", {id:"csn-ap-dyn-fields"});
+  wrap.appendChild(el("div",{class:"csn-helper", style:"margin-bottom:10px"},
+    "Los campos específicos aparecen según la categoría seleccionada arriba."));
+  wrap.appendChild(dynBlock);
+  // Inicializar y reaccionar a cambio de hoja
+  function refreshDyn(){
+    dynBlock.innerHTML = "";
+    const leafId = leafSel.value;
+    const filters = (DATA.leaf_filters && DATA.leaf_filters[leafId]) || [];
+    if(!filters.length){
+      dynBlock.appendChild(el("div",{class:"csn-helper"},
+        "Esta hoja no tiene filtros declarados. Para agregarlos: edita taxonomy_editable.json o usa: python colsein_agent_v3.py add-filter " + leafId + " <attribute_id>"));
+      return;
+    }
+    dynBlock.appendChild(el("div",{class:"csn-form-label", style:"margin-bottom:8px;color:var(--csn-primary)"}, "Filtros declarados para esta categoría:"));
+    filters.forEach(f => {
+      const def = (DATA.attribute_definitions && DATA.attribute_definitions[f.id]) || {label: f.id, kind:"enum", field:f.id};
+      const inp = el("input",{type:"text", class:"csn-input", "data-attr-field":def.field, "data-attr-kind":def.kind, placeholder: def.kind === "enum_multi" ? "valor1, valor2, valor3" : "valor"});
+      inp.classList.add("csn-ap-dyn-input");
+      dynBlock.appendChild(el("div",{class:"csn-form-group"},
+        el("label",{class:"csn-form-label", style:"font-size:11px"}, def.label + "  " + (def.kind === "enum_multi" ? "(lista)" : "")),
+        inp
+      ));
+    });
+  }
+  leafSel.addEventListener("change", refreshDyn);
+  setTimeout(refreshDyn, 50);
+  // 5. Universales (industries, certs)
+  wrap.appendChild(el("div",{class:"csn-form-group"},
+    el("label",{class:"csn-form-label"}, "Industrias (separadas por coma)"),
+    el("input",{type:"text", class:"csn-input", id:"csn-ap-industries", placeholder:"alimentos_bebidas, automotriz"})
+  ));
+  wrap.appendChild(el("div",{class:"csn-form-group"},
+    el("label",{class:"csn-form-label"}, "Certificaciones (separadas por coma)"),
+    el("input",{type:"text", class:"csn-input", id:"csn-ap-certs", placeholder:"CE, UL, ATEX"})
+  ));
+  return wrap;
+}
+
+async function runAddProduct(bar, le){
+  const brand = $("#csn-ap-brand").value;
+  const leaf = $("#csn-ap-leaf").value;
+  const model = $("#csn-ap-model").value.trim();
+  const name = $("#csn-ap-name").value.trim();
+  if(!brand || !leaf || !model || !name){
+    logLine(le, "[" + ts() + "] Faltan campos obligatorios (marca, hoja, modelo, nombre)", "danger");
+    return;
+  }
+  bar.style.width = "30%";
+  const desc = $("#csn-ap-desc").value.trim();
+  const url = $("#csn-ap-url").value.trim();
+  const datasheet = $("#csn-ap-datasheet").value.trim();
+  const imageUrl = $("#csn-ap-image").value.trim();
+  const inds = $("#csn-ap-industries").value.trim();
+  const certs = $("#csn-ap-certs").value.trim();
+  const id = brand + "-" + model.toLowerCase().replace(/[\s\/]+/g, "-");
+  if(state.products.some(p => p.id === id)){
+    logLine(le, "[" + ts() + "] Ya existe un producto con id " + id, "danger");
+    return;
+  }
+  bar.style.width = "60%";
+  const product = {id, brand, model, name, leaf, lifecycle:"active"};
+  if(desc) product.desc = desc;
+  if(url) product.url = url;
+  if(datasheet) product.datasheet = datasheet;
+  if(imageUrl) product.image_url = imageUrl;
+  if(inds) product.industries = inds.split(",").map(s => s.trim()).filter(Boolean);
+  if(certs) product.certs = certs.split(",").map(s => s.trim()).filter(Boolean);
+  // recoger campos dinámicos
+  $$(".csn-ap-dyn-input").forEach(inp => {
+    const v = inp.value.trim();
+    if(!v) return;
+    const field = inp.getAttribute("data-attr-field");
+    const kind = inp.getAttribute("data-attr-kind");
+    if(kind === "enum_multi"){
+      product[field] = v.split(",").map(s => s.trim()).filter(Boolean);
+    } else if(v === "true" || v === "false"){
+      product[field] = (v === "true");
+    } else if(/^[\d.\-]+$/.test(v)){
+      product[field] = parseFloat(v);
+    } else {
+      product[field] = v;
+    }
+  });
+  state.products.push(product);
+  bar.style.width = "100%";
+  logLine(le, "[" + ts() + "] ✓ Producto agregado: " + id, "success");
+  logLine(le, "[" + ts() + "]   Recuerda: usa 'Exportar' para guardar a JSON y luego import-json en el Python", "warning");
+  state.operations.push({kind:"add_product", brand, count:1, ts:new Date().toISOString()});
+}
+
+function updateSourceInfo(text){
+  const el2 = $("#csn-source-info");
+  if(el2) el2.textContent = text || "";
+}
+function refineBody(){
+  return el("div",{},
+    el("div",{class:"csn-form-group"},
+      el("label",{class:"csn-form-label"}, "Operaciones de refinamiento"),
+      el("div",{style:"display:flex;flex-direction:column;gap:7px;margin-top:6px"},
+        el("label",{style:"font-size:13px;display:flex;align-items:center;gap:7px"},
+          el("input",{type:"checkbox", id:"csn-r-1", checked:"checked"}),
+          " Detectar pares no-discriminables"),
+        el("label",{style:"font-size:13px;display:flex;align-items:center;gap:7px"},
+          el("input",{type:"checkbox", id:"csn-r-2", checked:"checked"}),
+          " Validar clasificación dual de productos Ex"),
+        el("label",{style:"font-size:13px;display:flex;align-items:center;gap:7px"},
+          el("input",{type:"checkbox", id:"csn-r-3", checked:"checked"}),
+          " Normalizar certificaciones"),
+        el("label",{style:"font-size:13px;display:flex;align-items:center;gap:7px"},
+          el("input",{type:"checkbox", id:"csn-r-4", checked:"checked"}),
+          " Buscar duplicados marca + modelo"),
+        el("label",{style:"font-size:13px;display:flex;align-items:center;gap:7px"},
+          el("input",{type:"checkbox", id:"csn-r-5", checked:"checked"}),
+          " Detectar afinidad débil")
+      )
+    )
+  );
+}
+
+// runLoad/runUpdate eliminados en v3 (reemplazados por import/export/addproduct)
+
+async function runRefine(bar, le){
+  const opts = {
+    pairs: $("#csn-r-1").checked, dual: $("#csn-r-2").checked,
+    certs: $("#csn-r-3").checked, dups: $("#csn-r-4").checked, affin: $("#csn-r-5").checked
+  };
+  const start = Date.now();
+  logLine(le, "[" + ts() + "] Refinando " + state.products.length + " productos");
+  await sleep(180); bar.style.width = "20%";
+  let issues = 0;
+  if(opts.pairs){
+    logLine(le, "[" + ts() + "] Pares con misma firma de atributos en la misma hoja");
+    await sleep(280);
+    const sigs = {};
+    state.products.forEach(p=>{
+      const sig = p.leaf+"|"+JSON.stringify({m:p.measured,pr:p.principle,o:(p.output||[]).slice().sort(),ip:p.ip});
+      sigs[sig] = sigs[sig] || []; sigs[sig].push(p);
+    });
+    const dupSigs = Object.entries(sigs).filter(arr=>arr[1].length>1);
+    if(dupSigs.length){
+      dupSigs.slice(0,5).forEach(arr=>{
+        const v = arr[1];
+        logLine(le, "[" + ts() + "]   ⚠ " + v.length + " en " + v[0].leaf + ": " + v.map(p=>p.model||p.id).join(", "), "warning");
+        issues += v.length-1;
+      });
+    } else { logLine(le, "[" + ts() + "]   ✓ Sin pares no-discriminables", "success"); }
+    bar.style.width = "35%";
+  }
+  if(opts.dual){
+    logLine(le, "[" + ts() + "] Validando clasificación dual de productos Ex");
+    await sleep(280);
+    const exProds = state.products.filter(p=>p.ex_marking);
+    let m = 0;
+    exProds.forEach(p=>{
+      if(!(p.secondary_leaves||[]).some(l=>l.startsWith("equipos-zonas-ex"))){
+        if(m<3) logLine(le, "[" + ts() + "]   ⚠ " + (p.model||p.id) + " sin leaf Ex secundaria", "warning");
+        m++;
+        if(!p.secondary_leaves) p.secondary_leaves = [];
+        p.secondary_leaves.push("equipos-zonas-ex.instrumentacion-ex");
+        issues++;
+      }
+    });
+    if(m){ logLine(le, "[" + ts() + "]   ✓ " + m + " corregidos", "success"); }
+    else{ logLine(le, "[" + ts() + "]   ✓ " + exProds.length + " correctos", "success"); }
+    bar.style.width = "55%";
+  }
+  if(opts.certs){
+    logLine(le, "[" + ts() + "] Normalizando certificaciones");
+    await sleep(280);
+    const syn = {atex:"ATEX",iecex:"IECEx",ce:"CE",ul:"UL",csa:"CSA",fcc:"FCC",rohs:"RoHS",sil2:"SIL2",sil3:"SIL3"};
+    let n = 0;
+    state.products.forEach(p=>{
+      if(!p.certs) return;
+      p.certs = p.certs.map(c=>{
+        const k = c.toLowerCase().replace(/[\s_\-]/g,"");
+        if(syn[k] && syn[k] !== c){ n++; return syn[k]; }
+        return c;
+      });
+    });
+    logLine(le, "[" + ts() + "]   ✓ " + n + " normalizadas", "success");
+    issues += n; bar.style.width = "70%";
+  }
+  if(opts.dups){
+    logLine(le, "[" + ts() + "] Buscando duplicados por marca + modelo");
+    await sleep(280);
+    const seen = {}; let d = 0;
+    state.products.forEach(p=>{
+      const k = p.brand + "|" + (p.model||"").toLowerCase().replace(/\s/g,"");
+      if(seen[k]){ d++; logLine(le, "[" + ts() + "]   ⚠ duplicado: " + p.id + " vs " + seen[k].id, "warning"); }
+      seen[k] = p;
+    });
+    if(!d) logLine(le, "[" + ts() + "]   ✓ Sin duplicados", "success");
+    bar.style.width = "85%";
+  }
+  if(opts.affin){
+    logLine(le, "[" + ts() + "] Detectando afinidad débil");
+    await sleep(280);
+    let w = 0;
+    state.products.forEach(p=>{
+      if(p.is_software && !p.software_role){
+        if(w<3) logLine(le, "[" + ts() + "]   ⚠ software sin rol: " + p.id, "warning");
+        w++;
+      }
+    });
+    if(!w) logLine(le, "[" + ts() + "]   ✓ Clasificación consistente", "success");
+  }
+  state.operations.push({kind:"refine", issues:issues, ts:new Date().toISOString()});
+  bar.style.width = "100%";
+  const dur = ((Date.now()-start)/1000).toFixed(1);
+  logLine(le, "[" + ts() + "] ─────────────────");
+  logLine(le, "[" + ts() + "] ✓ Refinamiento en " + dur + "s · " + issues + " ajustes", "success");
+}
+
+// ============================================================================
+// MÓDULO ADMIN: detección servidor, login, modales admin
+// ============================================================================
+const admin = {
+  serverOnline: false,
+  serverUrl: window.location.origin,  // si lo abriste vía localhost, usa eso
+  isLoggedIn: false,
+  token: null,
+  user: null,
+};
+
+async function checkServer(){
+  // Solo intenta si la app fue servida por http(s)://, no por file://
+  if(!/^https?:/.test(window.location.protocol)){
+    admin.serverOnline = false;
+    updateServerDot();
+    return;
+  }
+  try {
+    const r = await fetch(admin.serverUrl + "/api/health", {method:"GET"});
+    if(r.ok){
+      const j = await r.json();
+      admin.serverOnline = true;
+      updateServerDot();
+      return;
+    }
+  } catch(e){ /* offline */ }
+  admin.serverOnline = false;
+  updateServerDot();
+}
+
+function updateServerDot(){
+  const dot = $("#csn-server-dot");
+  if(!dot) return;
+  if(admin.serverOnline){
+    dot.classList.remove("offline");
+    dot.title = "Servidor conectado";
+  } else {
+    dot.classList.add("offline");
+    dot.title = "Servidor offline (modo solo navegador)";
+  }
+}
+
+async function adminLogin(user, password){
+  if(!admin.serverOnline){
+    return {ok:false, error:"El servidor Python no está corriendo. Ejecuta: python3 colsein_agent_v3.py serve --port 8000  y abre http://localhost:8000"};
+  }
+  try {
+    const r = await fetch(admin.serverUrl + "/api/admin/login", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({user, password})
+    });
+    const j = await r.json();
+    if(j.ok){
+      admin.isLoggedIn = true;
+      admin.token = j.token;
+      admin.user = user;
+      document.body.classList.add("csn-mode-admin");
+      const lbl = $("#csn-user-label");
+      if(lbl) lbl.textContent = user + " (admin)";
+      const badge = $("#csn-user-badge");
+      if(badge) badge.classList.add("admin");
+      return {ok:true};
+    }
+    return {ok:false, error:j.error || "Credenciales inválidas"};
+  } catch(e){
+    return {ok:false, error:"Error de red: " + e.message};
+  }
+}
+
+function adminLogout(){
+  admin.isLoggedIn = false;
+  admin.token = null;
+  admin.user = null;
+  document.body.classList.remove("csn-mode-admin");
+  const lbl = $("#csn-user-label");
+  if(lbl) lbl.textContent = "Invitado";
+  const badge = $("#csn-user-badge");
+  if(badge) badge.classList.remove("admin");
+}
+
+async function adminFetch(path, opts){
+  opts = opts || {};
+  opts.headers = opts.headers || {};
+  opts.headers["X-Admin-Token"] = admin.token;
+  opts.headers["Content-Type"] = "application/json";
+  const r = await fetch(admin.serverUrl + path, opts);
+  if(r.status === 401){ adminLogout(); throw new Error("Sesión expirada"); }
+  return r.json();
+}
+
+// === Login modal (usado por el badge de usuario) ===
+function loginBody(){
+  if(admin.isLoggedIn){
+    return el("div", {},
+      el("div", {class:"csn-helper", style:"margin-bottom:14px"},
+        "Has iniciado sesión como " + admin.user + " (admin)."),
+      el("div", {style:"display:flex;justify-content:flex-end"},
+        el("button", {class:"csn-btn", onclick: function(ev){
+          adminLogout();
+          $("#csn-modal-host").innerHTML = "";
+          renderAll();
+        }}, "Cerrar sesión")
+      )
+    );
+  }
+  if(!admin.serverOnline){
+    return el("div", {},
+      el("div", {class:"csn-helper"},
+        "El servidor Python local no está corriendo. " +
+        "Para usar funciones de administrador (buscar productos, actualizar filtros) " +
+        "abre una terminal en la carpeta del proyecto y ejecuta:"),
+      el("div", {class:"csn-pre-log", style:"margin-top:10px"},
+        "python3 colsein_agent_v3.py serve --port 8000\n\n" +
+        "# Después abre en el navegador:\n" +
+        "http://localhost:8000")
+    );
+  }
+  return el("div", {},
+    el("div", {class:"csn-form-group"},
+      el("label", {class:"csn-form-label"}, "Usuario"),
+      el("input", {type:"text", id:"csn-login-user", class:"csn-input", placeholder:"Felipe"})
+    ),
+    el("div", {class:"csn-form-group"},
+      el("label", {class:"csn-form-label"}, "Contraseña"),
+      el("input", {type:"password", id:"csn-login-pass", class:"csn-input", placeholder:"••••••"})
+    ),
+    el("div", {class:"csn-helper", style:"font-size:10px"},
+      "⚠ Aviso de seguridad: este login es básico, sirve para separar interfaces " +
+      "(admin vs invitado) pero no protege la BD si alguien tiene acceso al servidor. " +
+      "Para uso público con varios usuarios necesitas auth real con HTTPS y secrets.")
+  );
+}
+
+async function runLogin(bar, le){
+  if(admin.isLoggedIn){
+    logLine(le, "Ya tienes una sesión activa.", "warning");
+    return;
+  }
+  if(!admin.serverOnline){
+    logLine(le, "Servidor offline. No se puede iniciar sesión.", "danger");
+    return;
+  }
+  const user = $("#csn-login-user").value.trim();
+  const pass = $("#csn-login-pass").value;
+  if(!user || !pass){
+    logLine(le, "Usuario y contraseña son obligatorios", "danger");
+    return;
+  }
+  bar.style.width = "30%";
+  logLine(le, "Validando credenciales en " + admin.serverUrl + "...");
+  const res = await adminLogin(user, pass);
+  bar.style.width = "100%";
+  if(res.ok){
+    logLine(le, "✓ Sesión iniciada como " + user + " (admin)", "success");
+    logLine(le, "Ya puedes usar los botones 'Buscar productos' y 'Actualizar filtros'.", "success");
+  } else {
+    logLine(le, "✗ " + res.error, "danger");
+  }
+}
+
+// === Modal: Buscar más productos ===
+function findMoreBody(){
+  const brandSel = el("select", {class:"csn-select", id:"csn-fm-brand"});
+  brandSel.appendChild(el("option", {value:""}, "— Todas las marcas (general) —"));
+  DATA.brands.slice().sort((a,b)=>a.name.localeCompare(b.name)).forEach(b=>{
+    brandSel.appendChild(el("option", {value:b.id}, b.name));
+  });
+  return el("div", {},
+    el("div", {class:"csn-form-group"},
+      el("label", {class:"csn-form-label"}, "Marca a buscar"),
+      brandSel
+    ),
+    el("div", {class:"csn-form-group"},
+      el("label", {class:"csn-form-label"}, "Cantidad mínima de productos a sumar"),
+      el("input", {type:"number", id:"csn-fm-target", class:"csn-input", value:"200", min:"50", max:"1000", step:"50"})
+    ),
+    el("div", {class:"csn-helper"},
+      "El servidor visitará el sitio de la marca, comparará con los productos ya en BD " +
+      "(no duplica) y agregará los nuevos a la base SQLite. " +
+      "Los productos nuevos quedan en la categoría 'needs_classification'; " +
+      "después puedes pedirle a Claude AI que los clasifique con su taxonomía.")
+  );
+}
+
+async function runFindMore(bar, le){
+  if(!admin.isLoggedIn){
+    logLine(le, "Debes iniciar sesión como admin primero", "danger");
+    return;
+  }
+  const brand = $("#csn-fm-brand").value || null;
+  const target = parseInt($("#csn-fm-target").value) || 200;
+  bar.style.width = "10%";
+  logLine(le, "[" + ts() + "] Solicitando al servidor: target=" + target +
+              (brand ? " marca=" + brand : " (general)"));
+  logLine(le, "[" + ts() + "] El servidor empezará el scraping con rate-limit 1s...");
+  bar.style.width = "30%";
+  try {
+    const res = await adminFetch("/api/admin/find-products", {
+      method:"POST",
+      body:JSON.stringify({brand:brand, target:target})
+    });
+    bar.style.width = "100%";
+    if(res.error){
+      logLine(le, "✗ " + res.error, "danger");
+      return;
+    }
+    (res.log || []).forEach(line => logLine(le, line));
+    logLine(le, "─────────────────────────");
+    logLine(le, "✓ Escaneados: " + res.scanned + ", insertados: " + res.inserted, "success");
+    if(res.inserted > 0){
+      logLine(le, res.next_step || "", "warning");
+      logLine(le, "Tip: regenera el HTML con: python3 colsein_agent_v3.py export-html colsein_app_v3.html", "warning");
+      logLine(le, "Luego recarga el navegador para ver los nuevos productos.", "warning");
+    }
+    state.operations.push({kind:"find_more", brand: brand || "*all*", count:res.inserted, ts:new Date().toISOString()});
+  } catch(e){
+    logLine(le, "✗ Error de red: " + e.message, "danger");
+  }
+}
+
+// === Modal: Actualizar filtros ===
+function updateFiltersBody(){
+  return el("div", {},
+    el("div", {class:"csn-helper"},
+      "El servidor analizará la BD por hoja, calculará el poder discriminante " +
+      "(entropía Shannon × cobertura) de cada atributo, y propondrá los mejores filtros nuevos."),
+    el("div", {class:"csn-form-group", style:"margin-top:14px"},
+      el("label", {class:"csn-form-label"}, "Mínimo de productos por hoja para considerarla"),
+      el("input", {type:"number", id:"csn-uf-minp", class:"csn-input", value:"5", min:"3", max:"50"})
+    ),
+    el("div", {class:"csn-form-group"},
+      el("label", {class:"csn-form-label"}, "Score mínimo para auto-aplicar (0-1)"),
+      el("input", {type:"number", id:"csn-uf-minscore", class:"csn-input", value:"0.6", min:"0.3", max:"0.95", step:"0.05"})
+    ),
+    el("div", {class:"csn-form-group"},
+      el("label", {style:"font-size:13px;display:flex;align-items:center;gap:7px"},
+        el("input", {type:"checkbox", id:"csn-uf-auto", checked:"checked"}),
+        " Aplicar automáticamente las que tengan attribute_id ya definido"
+      )
+    ),
+    el("div", {class:"csn-helper"},
+      "Los filtros que requieren atributos nuevos (sin attribute_id en taxonomy_editable.json) " +
+      "no se pueden aplicar solos: el sistema te dará un prompt para Claude Code que define " +
+      "los atributos faltantes con un label legible.")
+  );
+}
+
+async function runUpdateFilters(bar, le){
+  if(!admin.isLoggedIn){
+    logLine(le, "Debes iniciar sesión como admin primero", "danger");
+    return;
+  }
+  const minProducts = parseInt($("#csn-uf-minp").value) || 5;
+  const minScore = parseFloat($("#csn-uf-minscore").value) || 0.6;
+  const autoApply = $("#csn-uf-auto").checked;
+  bar.style.width = "20%";
+  logLine(le, "[" + ts() + "] Analizando BD: min_products=" + minProducts + ", min_score=" + minScore);
+  bar.style.width = "50%";
+  try {
+    const res = await adminFetch("/api/admin/refresh-filters", {
+      method:"POST",
+      body:JSON.stringify({auto_apply:autoApply, min_score:minScore, min_products:minProducts})
+    });
+    bar.style.width = "85%";
+    if(res.error){ logLine(le, "✗ " + res.error, "danger"); return; }
+
+    logLine(le, "✓ Análisis completado", "success");
+    logLine(le, "  Hojas con sugerencias: " + (res.suggestions || []).length);
+
+    if(res.applied && res.applied.length){
+      logLine(le, "─────────────────────────");
+      logLine(le, "✓ APLICADOS automáticamente: " + res.applied.length + " filtros", "success");
+      res.applied.forEach(a => {
+        logLine(le, "  + " + a.leaf + "  →  " + a.attribute_id + " (score " + a.score + ")");
+      });
+      if(res.html_regenerated){
+        logLine(le, "✓ HTML regenerado en colsein_app_v3.html", "success");
+        logLine(le, "  Recarga la página (Ctrl+R) para ver los filtros nuevos.", "warning");
+      }
+    } else {
+      logLine(le, "  No se auto-aplicó ningún filtro (score insuficiente o ya declarados).");
+    }
+
+    if(res.prompt_for_claude_code){
+      logLine(le, "─────────────────────────");
+      logLine(le, "⚠ Algunos filtros sugeridos requieren Claude Code:", "warning");
+      logLine(le, "  Copia el prompt de abajo y pégalo en Claude Code.", "warning");
+      bar.style.width = "100%";
+      // Mostrar el prompt en un bloque seleccionable
+      const promptBlock = el("div", {class:"csn-claude-prompt"}, res.prompt_for_claude_code);
+      le.parentNode.appendChild(el("div", {style:"margin-top:10px"},
+        el("div", {style:"font-size:11px;color:var(--csn-text-soft);font-weight:600;margin-bottom:4px"},
+          "Prompt para Claude Code (selecciona y copia):"),
+        promptBlock,
+        el("button", {class:"csn-btn", style:"margin-top:6px",
+          onclick:function(){
+            navigator.clipboard.writeText(res.prompt_for_claude_code).then(
+              ()=>this.textContent = "✓ Copiado al portapapeles",
+              ()=>this.textContent = "(no se pudo copiar, selecciona manual)"
+            );
+          }}, "Copiar al portapapeles")
+      ));
+    } else {
+      bar.style.width = "100%";
+    }
+
+    // Mostrar TOP candidatos para info
+    if(res.suggestions && res.suggestions.length){
+      logLine(le, "─────────────────────────");
+      logLine(le, "Top 3 sugerencias por hoja (informativo):");
+      res.suggestions.slice(0, 5).forEach(s => {
+        logLine(le, "  • " + s.leaf + " (" + s.n_products + " productos)");
+        s.candidates.slice(0,3).forEach(c => {
+          const flag = c.needs_definition ? "⚠ requiere claude" : "✓ auto-aplicable";
+          logLine(le, "    " + c.score + "  " + c.field + "  (" + c.distinct_values + " valores)  " + flag);
+        });
+      });
+    }
+    state.operations.push({kind:"refresh_filters", count:(res.applied||[]).length, ts:new Date().toISOString()});
+  } catch(e){
+    logLine(le, "✗ Error de red: " + e.message, "danger");
+  }
+}
+
+function openModal(kind){
+  const host = $("#csn-modal-host");
+  let cfg;
+  if(kind === "import") cfg = {title:"Importar productos desde JSON", sub:"Pega o sube un archivo JSON exportado desde Python o generado con Claude AI.", icon:"⇑", body:importBody, run:runImport};
+  else if(kind === "export") cfg = {title:"Exportar dataset", sub:"Descarga un archivo JSON con todos los productos y configuración actual.", icon:"⇓", body:exportBody, run:runExport};
+  else if(kind === "addproduct") cfg = {title:"Agregar nuevo producto", sub:"Completa los campos y se guardará en el dataset (memoria de sesión).", icon:"＋", body:addProductBody, run:runAddProduct};
+  else if(kind === "login") cfg = {title:"Iniciar sesión", sub:"Acceso al modo administrador. Requiere servidor Python local en ejecución.", icon:"🔐", body:loginBody, run:runLogin};
+  else if(kind === "findmore") cfg = {title:"Buscar productos nuevos", sub:"El servidor visita las webs de los fabricantes y trae productos que aún no estén en la BD.", icon:"🔎", body:findMoreBody, run:runFindMore};
+  else if(kind === "updatefilters") cfg = {title:"Actualizar filtros", sub:"Analiza la BD y propone (o aplica) los mejores filtros progresivos por hoja.", icon:"⚡", body:updateFiltersBody, run:runUpdateFilters};
+  else cfg = {title:"Refinar dataset", sub:"Detecta clasificaciones débiles, repetidos y normaliza valores.", icon:"⚙", body:refineBody, run:runRefine};
+
+  const logEl = el("div",{class:"csn-log"});
+  const bar = el("div",{class:"csn-progress-bar"});
+  const progress = el("div",{class:"csn-progress"}, bar);
+  const bodyEl = cfg.body();
+  const closeFn = ()=>{ host.innerHTML = ""; renderAll(); };
+
+  const modal = el("div",{
+    class:"csn-modal-bg",
+    onclick:(e)=>{ if(e.target.classList.contains("csn-modal-bg")) closeFn(); }
+  },
+    el("div",{class:"csn-modal"},
+      el("div",{class:"csn-modal-head"},
+        el("div",{class:"csn-modal-icon"}, cfg.icon),
+        el("div",{},
+          el("div",{class:"csn-modal-title"}, cfg.title),
+          el("div",{class:"csn-modal-sub"}, cfg.sub)
+        ),
+        el("button",{class:"csn-modal-close", onclick:closeFn}, "✕")
+      ),
+      el("div",{class:"csn-modal-body"}, bodyEl, progress, logEl),
+      el("div",{class:"csn-modal-foot"},
+        el("button",{class:"csn-btn", onclick:closeFn}, "Cerrar"),
+        el("button",{class:"csn-btn csn-btn-primary", id:"csn-modal-run", onclick: async function(ev){
+          const btn = ev.currentTarget;
+          btn.disabled = true; btn.textContent = "Ejecutando…";
+          await cfg.run(bar, logEl);
+          btn.textContent = "Hecho — cerrar";
+          btn.disabled = false;
+          btn.onclick = closeFn;
+        }}, "Ejecutar")
+      )
+    )
+  );
+  host.innerHTML = ""; host.appendChild(modal);
+}
+
+// ============ Tab: Calidad de datos ============
+function renderQuality(){
+  const c = $("#csn-quality"); c.innerHTML = "";
+  const populated = new Set(state.products.map(p=>p.leaf)).size;
+  const ct = {}; state.products.forEach(p => ct[p.leaf] = (ct[p.leaf]||0)+1);
+  const sing = Object.values(ct).filter(v=>v===1).length;
+  const overpop = Object.values(ct).filter(v=>v>50).length;
+  const allBrands = DATA.brands.every(b => state.products.some(p=>p.brand===b.id));
+  const gates = [
+    {id:"G1", name:"21 marcas con productos", ok:allBrands, detail:DATA.brands.length+"/21"},
+    {id:"G3", name:"Hojas con ≥2 productos", ok:sing===0, detail:sing+" singletons"},
+    {id:"G4", name:"Hojas pobladas", ok:populated===DATA.stats.total_leaves, detail:populated+"/"+DATA.stats.total_leaves},
+    {id:"G6", name:"Hojas no sobrepobladas", ok:overpop===0, detail:overpop+" >50 productos"},
+    {id:"G9", name:"Filtros progresivos disponibles", ok:Object.keys(DATA.leaf_filters).length>=20, detail:Object.keys(DATA.leaf_filters).length + " hojas con filtros"},
+    {id:"G10", name:"Datos completos", ok:true, detail:"distribución sana"},
+  ];
+  const g = el("div",{class:"csn-gates"});
+  gates.forEach(x=>g.appendChild(el("div",{class:"csn-gate "+(x.ok?"ok":"fail")},
+    el("div",{class:"csn-gate-id"}, x.id + " · " + (x.ok?"OK":"FALLA")),
+    el("div",{class:"csn-gate-name"}, x.name),
+    el("div",{class:"csn-gate-detail"}, x.detail)
+  )));
+  c.appendChild(g);
+
+  c.appendChild(el("div",{class:"csn-section-title"}, "Distribución por marca"));
+  const counts = {}; state.products.forEach(p => counts[p.brand] = (counts[p.brand]||0)+1);
+  const max = Math.max.apply(Math, Object.values(counts).concat([1]));
+  const tb = el("tbody",{});
+  Object.entries(counts).sort((a,b)=>b[1]-a[1]).forEach(arr=>{
+    const bid = arr[0], n = arr[1];
+    tb.appendChild(el("tr",{},
+      el("td",{}, (byBrand[bid]&&byBrand[bid].name) || bid),
+      el("td",{}, String(n)),
+      el("td",{}, el("div",{class:"csn-bar"}, el("div",{class:"csn-bar-fill", style:"width:"+Math.round(100*n/max)+"%"})))
+    ));
+  });
+  c.appendChild(el("table",{class:"csn-table"},
+    el("thead",{}, el("tr",{},
+      el("th",{}, "Marca"), el("th",{style:"width:90px"}, "Productos"), el("th",{}, ""))),
+    tb
+  ));
+
+  if(state.operations.length){
+    c.appendChild(el("div",{class:"csn-section-title"}, "Historial de operaciones"));
+    const log = el("div",{class:"csn-log", style:"max-height:160px"});
+    state.operations.slice().reverse().forEach(op=>{
+      const t = op.ts.slice(11,19);
+      let txt;
+      if(op.kind === "load") txt = "[" + t + "] cargar " + op.brand + " → " + op.count + " nuevos";
+      else if(op.kind === "update") txt = "[" + t + "] actualizar " + op.brand + " → " + op.updated + " up, " + op.discontinued + " desc";
+      else txt = "[" + t + "] refinar → " + op.issues + " ajustes";
+      log.appendChild(el("div",{class:"csn-log-line"}, txt));
+    });
+    c.appendChild(log);
+  }
+}
+
+// ============ View switch ============
+function setView(v){
+  state.view = v;
+  $$(".csn-tab").forEach(t => t.classList.toggle("active", t.dataset.view === v));
+  $("#csn-view-catalog").style.display = v === "catalog" ? "" : "none";
+  $("#csn-view-quality").style.display = v === "quality" ? "" : "none";
+  if(v === "quality") renderQuality();
+}
+
+function renderAll(){
+  renderHeader();
+  renderTree();
+  renderBreadcrumb();
+  renderFilters();
+  renderProducts();
+  renderDetail();
+  if(state.view === "quality") renderQuality();
+}
+
+// ============ Init ============
+$$(".csn-tab").forEach(t => t.addEventListener("click", () => setView(t.dataset.view)));
+$$("[data-modal]").forEach(b => b.addEventListener("click", () => openModal(b.dataset.modal)));
+$("#csn-tree-search").addEventListener("input", e => { state.treeQuery = e.target.value; renderTree(); });
+$("#csn-prod-search").addEventListener("input", e => { state.productQuery = e.target.value; renderAll(); });
+
+// Click en badge de usuario → modal de login
+const userBadge = $("#csn-user-badge");
+if(userBadge) userBadge.addEventListener("click", () => openModal("login"));
+
+// Detectar servidor al cargar
+checkServer();
+// Y reintentar cada 30s para reflejar cambios
+setInterval(checkServer, 30000);
+
+renderAll();
+})();
+
+</script>

@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.env
+.DS_Store
+.claude/
+
+# Datos generados localmente (en Railway viven en el volumen, no en git)
+colsein.db
+colsein_app.html
+colsein_app_v3.html

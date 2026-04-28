@@ -1,0 +1,4 @@
+# Forzar LF en scripts y archivos de despliegue (Railway corre Linux)
+*.sh        text eol=lf
+Procfile    text eol=lf
+*.py        text eol=lf
