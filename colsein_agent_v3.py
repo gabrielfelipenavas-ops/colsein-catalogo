@@ -1695,18 +1695,11 @@ def enrich_colsein_attributes(progress_cb=None):
     products_updated = 0
     attr_added_total = 0
     attr_count_per_id = {}
-    debug_samples = []  # debug: primeros 3 productos con su texto y atributos extraídos
 
     for row in rows:
         existing_attrs = json.loads(row["attributes"] or "{}")
         text = ((row["name"] or "") + " " + (row["description"] or "")).strip()
         new_attrs = _extract_attributes(text)
-        if len(debug_samples) < 3:
-            debug_samples.append({
-                "id": row["id"],
-                "text_preview": text[:200],
-                "extracted": dict(new_attrs),
-            })
         if not new_attrs:
             continue
         # No pisar atributos existentes (preferimos lo manual)
@@ -1746,7 +1739,6 @@ def enrich_colsein_attributes(progress_cb=None):
         "attributes_added_total": attr_added_total,
         "attributes_used_count_per_id": attr_count_per_id,
         "new_attribute_definitions": new_defs,
-        "debug_samples": debug_samples,
     }
 
 
