@@ -1836,16 +1836,45 @@ def build_app():
     ADMIN_USER = _env("ADMIN_USER", "Felipe")
     ADMIN_PASS = _env("ADMIN_PASS", "Felipe")
     import secrets as _sec
+    import hmac as _hmac
+    import hashlib as _hashlib
+    import base64 as _base64
     app.secret_key = _env("FLASK_SECRET_KEY", _sec.token_hex(32))
-    _active_tokens = set()
+    _SIGN_KEY = app.secret_key.encode() if isinstance(app.secret_key, str) else app.secret_key
     if ADMIN_PASS == "Felipe":
         warn("ADMIN_PASS no configurado o vacío: usando contraseña por defecto 'Felipe'. "
              "En producción exporta ADMIN_USER y ADMIN_PASS como variables de entorno.")
 
+    def _sign_token(payload_str):
+        """Tokens stateless firmados HMAC. Cualquier worker los valida sin
+        necesidad de un store compartido. Formato: {payload}.{signature}"""
+        sig = _hmac.new(_SIGN_KEY, payload_str.encode(), _hashlib.sha256).digest()
+        sig_b64 = _base64.urlsafe_b64encode(sig).decode().rstrip("=")
+        return f"{payload_str}.{sig_b64}"
+
+    def _verify_token(token):
+        if not token or "." not in token:
+            return False
+        payload_str, sig_b64 = token.rsplit(".", 1)
+        expected = _hmac.new(_SIGN_KEY, payload_str.encode(), _hashlib.sha256).digest()
+        provided = _base64.urlsafe_b64decode(sig_b64 + "=" * (-len(sig_b64) % 4))
+        if not _hmac.compare_digest(expected, provided):
+            return False
+        # payload_str = "<user>:<issued_at>". Validar TTL (24h).
+        try:
+            user, issued = payload_str.split(":", 1)
+            issued_at = int(issued)
+        except Exception:
+            return False
+        import time as _t
+        if _t.time() - issued_at > 86400:
+            return False
+        return True
+
     def require_admin():
         from flask import request as flreq
         token = flreq.headers.get("X-Admin-Token") or flreq.cookies.get("colsein_admin")
-        return token in _active_tokens
+        return _verify_token(token)
 
     @app.route("/api/health")
     def api_health():
@@ -1855,21 +1884,18 @@ def build_app():
     @app.route("/api/admin/login", methods=["POST"])
     def api_admin_login():
         data = request.json or {}
-        # Comparación tolerante: el username es case-insensitive y se le quitan
-        # espacios; la contraseña se compara exacta (puede contener espacios).
         user_in = (data.get("user") or "").strip().lower()
         pass_in = data.get("password") or ""
         if user_in == ADMIN_USER.lower() and pass_in == ADMIN_PASS:
-            tok = _sec.token_urlsafe(24)
-            _active_tokens.add(tok)
+            import time as _t
+            payload = f"{user_in}:{int(_t.time())}"
+            tok = _sign_token(payload)
             return jsonify({"ok": True, "token": tok})
         return jsonify({"ok": False, "error": "Credenciales inválidas"}), 401
 
     @app.route("/api/admin/logout", methods=["POST"])
     def api_admin_logout():
-        from flask import request as flreq
-        token = flreq.headers.get("X-Admin-Token")
-        _active_tokens.discard(token)
+        # Tokens stateless: el cliente debe descartar su token. No hay store que limpiar.
         return jsonify({"ok": True})
 
     @app.route("/api/admin/stats")
