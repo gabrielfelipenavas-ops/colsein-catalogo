@@ -301,8 +301,11 @@
 const DATA = __DATA_JSON__;
 (function(){
 const state = {
-  products: DATA.products_initial.slice(),
-  remaining: DATA.products_remaining.slice(),
+  // Carga TODO el dataset de una al iniciar (initial + remaining juntos).
+  // El split solo existe en el JSON embebido por razones de generación, pero
+  // el frontend debe mostrarlos todos juntos sin paginación lazy.
+  products: (DATA.products_initial || []).concat(DATA.products_remaining || []),
+  remaining: [],
   selectedNode: null,
   selectedProduct: null,
   expandedNodes: new Set(["root"]),
