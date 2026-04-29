@@ -1674,6 +1674,17 @@ ENRICH_ATTRIBUTE_DEFS = {
     "apantallado":         {"label": "Apantallado", "kind": "enum", "field": "apantallado"},
     "perfil_aluminio":     {"label": "Perfil aluminio", "kind": "enum", "field": "perfil_aluminio"},
     "altura_panel":        {"label": "Altura panel (mm)", "kind": "enum", "field": "altura_panel"},
+    # Atributos que vienen de import scrapeado (PLCs, HMIs)
+    "display_size":        {"label": "Tamaño display", "kind": "enum", "field": "display_size"},
+    "digital_inputs":      {"label": "Entradas digitales", "kind": "enum", "field": "digital_inputs"},
+    "analog_inputs":       {"label": "Entradas analógicas", "kind": "enum", "field": "analog_inputs"},
+    "transistor_outputs":  {"label": "Salidas transistor", "kind": "enum", "field": "transistor_outputs"},
+    "relay_outputs":       {"label": "Salidas relay", "kind": "enum", "field": "relay_outputs"},
+    "output_type":         {"label": "Tipo salida (PLC)", "kind": "enum", "field": "output_type"},
+    "touch_type":          {"label": "Tipo touch", "kind": "enum", "field": "touch_type"},
+    "resolution":          {"label": "Resolución", "kind": "enum", "field": "resolution"},
+    "operating_temperature": {"label": "Temperatura operación", "kind": "enum", "field": "operating_temperature"},
+    "clase_precision":     {"label": "Clase de precisión", "kind": "enum", "field": "clase_precision"},
 }
 
 
@@ -1716,6 +1727,19 @@ def enrich_colsein_attributes(progress_cb=None):
             products_updated += 1
             attr_added_total += added_here
 
+    # Adicionalmente, escanear TODOS los productos colsein-online-* y
+    # juntar los IDs de atributos que ya tienen (no solo los que enrich agregó),
+    # para registrar sus attribute_definitions también. Esto cubre productos
+    # importados con atributos pre-llenados (como los scrapeados de Unitronics).
+    all_used_attr_ids = set(used_attr_ids)
+    rows_full = conn.execute(
+        "SELECT attributes FROM products WHERE id LIKE 'colsein-online-%' OR id LIKE 'scraped-%'"
+    ).fetchall()
+    for row in rows_full:
+        attrs = json.loads(row["attributes"] or "{}")
+        for k in attrs.keys():
+            all_used_attr_ids.add(k)
+
     log_operation(conn, "update", "enrich-colsein", products_updated,
                   f"+{attr_added_total} atributos en {products_updated} productos")
     conn.commit()
@@ -1726,7 +1750,7 @@ def enrich_colsein_attributes(progress_cb=None):
     if "attribute_definitions" not in tax:
         tax["attribute_definitions"] = {}
     new_defs = 0
-    for aid in used_attr_ids:
+    for aid in all_used_attr_ids:
         if aid not in tax["attribute_definitions"] and aid in ENRICH_ATTRIBUTE_DEFS:
             tax["attribute_definitions"][aid] = ENRICH_ATTRIBUTE_DEFS[aid]
             new_defs += 1
