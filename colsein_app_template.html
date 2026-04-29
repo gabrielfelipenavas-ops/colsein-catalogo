@@ -245,6 +245,7 @@
       <button class="csn-btn" data-modal="import"><span class="csn-btn-icon">⇑</span>Importar JSON</button>
       <button class="csn-btn" data-modal="export"><span class="csn-btn-icon">⇓</span>Exportar</button>
       <button class="csn-btn csn-btn-primary" data-modal="addproduct"><span class="csn-btn-icon">＋</span>Agregar producto</button>
+      <button class="csn-btn csn-admin-only csn-btn-primary" data-modal="importcolsein"><span class="csn-btn-icon">🛒</span>Importar Colsein Online</button>
       <button class="csn-btn csn-admin-only" data-modal="findmore"><span class="csn-btn-icon">🔎</span>Buscar productos</button>
       <button class="csn-btn csn-admin-only" data-modal="updatefilters"><span class="csn-btn-icon">⚡</span>Actualizar filtros</button>
       <button class="csn-btn" data-modal="refine"><span class="csn-btn-icon">⚙</span>Refinar</button>
@@ -1757,6 +1758,67 @@ async function runUpdateFilters(bar, le){
   }
 }
 
+// === Modal: Importar Colsein Online (WooCommerce API) ===
+function importColseinBody(){
+  return el("div", {},
+    el("div", {class:"csn-helper", style:"margin-bottom:12px"},
+      "Esta acción trae TODOS los productos publicados en " +
+      "colseinonline.com.co usando su API pública de WooCommerce. Para cada uno guarda: " +
+      "nombre, foto, descripción corta, URL al producto, y lo clasifica en una jerarquía " +
+      "Marca → Subcategoría dentro del trunk \"Colsein Online\" del catálogo."),
+    el("div", {class:"csn-helper", style:"font-size:11px"},
+      "• Es idempotente: si vuelves a darle, actualiza productos existentes en lugar de duplicar. " +
+      "• Auto-registra marcas y categorías nuevas en taxonomy_editable.json. " +
+      "• Tras importar, regenera el HTML automáticamente."),
+    el("div", {class:"csn-helper", style:"font-size:11px;margin-top:8px;color:var(--csn-warning,#a06000)"},
+      "⚠ Los atributos detallados (rango, voltaje, etc.) NO vienen en la API pública. " +
+      "Después de importar puedes correr \"Actualizar filtros\" para generar filtros " +
+      "automáticos basados en categorías.")
+  );
+}
+
+async function runImportColsein(bar, le){
+  if(!admin.isLoggedIn){
+    logLine(le, "Debes iniciar sesión como admin primero", "danger");
+    return;
+  }
+  bar.style.width = "10%";
+  logLine(le, "[" + ts() + "] Llamando a /api/admin/import-colsein-online…");
+  logLine(le, "  (esto descarga ~700 productos de colseinonline.com.co; tarda 1-2 min)");
+  try {
+    const res = await adminFetch("/api/admin/import-colsein-online", {method:"POST"});
+    bar.style.width = "90%";
+    if(res.error){
+      logLine(le, "✗ " + res.error, "danger");
+      (res.log || []).forEach(l => logLine(le, "  " + l));
+      return;
+    }
+    const s = res.stats || {};
+    logLine(le, "✓ Import completado", "success");
+    logLine(le, "  Productos nuevos: " + (s.inserted || 0), "success");
+    logLine(le, "  Productos actualizados: " + (s.updated || 0));
+    logLine(le, "  Sin marca identificable (omitidos): " + (s.skipped_no_brand || 0));
+    logLine(le, "  Marcas nuevas registradas: " + (s.new_brands || 0));
+    logLine(le, "  Hojas (categorías) nuevas: " + (s.new_leaf_nodes || 0));
+    logLine(le, "  Páginas API leídas: " + (s.pages_fetched || 0));
+    if(s.by_brand){
+      logLine(le, "─────────────────────────");
+      logLine(le, "Productos importados por marca:");
+      const entries = Object.entries(s.by_brand).sort((a,b)=>b[1]-a[1]);
+      entries.forEach(([brand, n]) => logLine(le, "  • " + brand + ": " + n));
+    }
+    if(res.html_regenerated){
+      logLine(le, "─────────────────────────");
+      logLine(le, "✓ HTML regenerado", "success");
+      logLine(le, "Recarga la página con Ctrl+F5 para ver los productos nuevos.", "warning");
+    }
+    bar.style.width = "100%";
+    state.operations.push({kind:"import_colsein_online", count:(s.inserted||0)+(s.updated||0), ts:new Date().toISOString()});
+  } catch(e){
+    logLine(le, "✗ Error de red: " + e.message, "danger");
+  }
+}
+
 function openModal(kind){
   const host = $("#csn-modal-host");
   let cfg;
@@ -1766,6 +1828,7 @@ function openModal(kind){
   else if(kind === "login") cfg = {title:"Iniciar sesión", sub:"Acceso al modo administrador.", icon:"🔐", body:loginBody, run:runLogin, actionLabel:"Iniciar sesión", runningLabel:"Validando…", doneLabel:"Cerrar"};
   else if(kind === "findmore") cfg = {title:"Buscar productos nuevos", sub:"El servidor visita las webs de los fabricantes y trae productos que aún no estén en la BD.", icon:"🔎", body:findMoreBody, run:runFindMore, actionLabel:"Buscar", runningLabel:"Buscando…"};
   else if(kind === "updatefilters") cfg = {title:"Actualizar filtros", sub:"Analiza la BD y propone (o aplica) los mejores filtros progresivos por hoja.", icon:"⚡", body:updateFiltersBody, run:runUpdateFilters, actionLabel:"Actualizar", runningLabel:"Analizando…"};
+  else if(kind === "importcolsein") cfg = {title:"Importar de Colsein Online", sub:"Trae todos los productos de colseinonline.com.co (~700 productos) vía la API pública de WooCommerce. Auto-registra marcas y categorías.", icon:"🛒", body:importColseinBody, run:runImportColsein, actionLabel:"Importar todo", runningLabel:"Importando… (puede tardar 1-2 min)"};
   else cfg = {title:"Refinar dataset", sub:"Detecta clasificaciones débiles, repetidos y normaliza valores.", icon:"⚙", body:refineBody, run:runRefine, actionLabel:"Refinar", runningLabel:"Refinando…"};
 
   const logEl = el("div",{class:"csn-log"});

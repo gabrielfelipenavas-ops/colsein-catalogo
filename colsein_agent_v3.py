@@ -1315,6 +1315,239 @@ def regen_html_from_template():
 
 
 # ============================================================================
+# Importador desde la API pública de colseinonline.com.co (WooCommerce REST)
+# ============================================================================
+COLSEIN_ONLINE_API = "https://colseinonline.com.co/wp-json/wc/store"
+# Categorías top-level que NO son marcas (transversales)
+COLSEIN_NON_BRAND_SLUGS = {"liquidacion", "promocion", "capacitaciones",
+                            "filtros", "termostatos", "el-sol"}
+
+
+def _strip_html(s):
+    """Elimina etiquetas HTML y normaliza espacios."""
+    import re
+    s = re.sub(r"<[^>]+>", " ", s or "")
+    s = re.sub(r"&nbsp;", " ", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
+
+
+def _map_colsein_product(p, brand_cats_by_id, cats_map):
+    """Mapea un producto de la API WC al schema interno de la BD.
+    Retorna None si no se puede identificar la marca."""
+    prod_cat_objs = p.get("categories", []) or []
+    prod_cat_ids = [c.get("id") for c in prod_cat_objs if c.get("id") is not None]
+
+    brand_cat = None
+    sub_cats = []
+    for cid in prod_cat_ids:
+        if cid in brand_cats_by_id:
+            # priorizar la marca con más productos si hay empate
+            if brand_cat is None or brand_cats_by_id[cid].get("count", 0) > brand_cat.get("count", 0):
+                brand_cat = brand_cats_by_id[cid]
+        elif cid in cats_map:
+            sub_cats.append(cats_map[cid])
+    if not brand_cat:
+        return None
+
+    brand_slug = brand_cat["slug"]
+    sub_cat = next((sc for sc in sub_cats if sc.get("parent") == brand_cat["id"]), None)
+    if sub_cat:
+        leaf_id = f"colsein-online.{brand_slug}.{sub_cat['slug']}"
+        leaf_label = sub_cat["name"]
+    else:
+        leaf_id = f"colsein-online.{brand_slug}.general"
+        leaf_label = "General"
+
+    images = p.get("images") or []
+    image_url = images[0].get("src") if images else None
+
+    desc = _strip_html(p.get("short_description") or p.get("description") or "")
+    if len(desc) > 500:
+        desc = desc[:497] + "..."
+
+    return {
+        "id": f"colsein-online-{p['id']}",
+        "brand": brand_slug,
+        "model": (p.get("sku") or "").strip(),
+        "name": p.get("name") or "(sin nombre)",
+        "family": brand_cat.get("name"),
+        "leaf": leaf_id,
+        "leaf_label": leaf_label,
+        "description": desc,
+        "manufacturer_url": p.get("permalink"),
+        "image_url": image_url,
+        "attributes": {},
+    }
+
+
+def import_colsein_online(progress_cb=None):
+    """Trae todos los productos de colseinonline.com.co vía WC API,
+    auto-registra marcas/categorías nuevas en taxonomy_editable.json
+    e inserta/actualiza productos en la BD.
+
+    progress_cb(msg) opcional: callback para logging.
+
+    Retorna dict con stats."""
+    try:
+        import requests
+    except ImportError:
+        raise RuntimeError("Falta la dependencia 'requests'")
+
+    log = (progress_cb or (lambda *a, **k: None))
+
+    # 1. Categorías
+    log(f"Trayendo categorías de {COLSEIN_ONLINE_API}/products/categories")
+    cats_resp = requests.get(
+        f"{COLSEIN_ONLINE_API}/products/categories",
+        params={"per_page": 100}, timeout=30,
+        headers={"User-Agent": SCRAPER_USER_AGENT})
+    cats_resp.raise_for_status()
+    cats_list = cats_resp.json()
+    cats_map = {c["id"]: c for c in cats_list}
+    brand_cats_by_id = {c["id"]: c for c in cats_list
+                        if c.get("parent") == 0
+                        and c.get("slug") not in COLSEIN_NON_BRAND_SLUGS
+                        and c.get("count", 0) > 0}
+    log(f"  {len(cats_list)} categorías totales, {len(brand_cats_by_id)} marcas detectadas")
+
+    # 2. Cargar y preparar taxonomía
+    tax = load_taxonomy()
+    existing_brand_ids = {b["id"] for b in tax["brands"]}
+    existing_node_ids = {n["id"] for n in tax["nodes"]}
+
+    if "colsein-online" not in existing_node_ids:
+        tax["nodes"].append({
+            "id": "colsein-online",
+            "label": "Colsein Online",
+            "parent": "root",
+            "is_leaf": False,
+            "level": 1,
+            "trunk": "colsein-online",
+        })
+        existing_node_ids.add("colsein-online")
+        log("  + nodo trunk 'colsein-online'")
+
+    new_brands = 0
+    new_brand_nodes = 0
+    for bcat in brand_cats_by_id.values():
+        bslug = bcat["slug"]
+        if bslug not in existing_brand_ids:
+            tax["brands"].append({
+                "id": bslug,
+                "name": bcat.get("name") or bslug,
+                "url": bcat.get("permalink") or "",
+            })
+            existing_brand_ids.add(bslug)
+            new_brands += 1
+        node_id = f"colsein-online.{bslug}"
+        if node_id not in existing_node_ids:
+            tax["nodes"].append({
+                "id": node_id,
+                "label": bcat.get("name") or bslug,
+                "parent": "colsein-online",
+                "is_leaf": False,
+                "level": 2,
+                "trunk": "colsein-online",
+            })
+            existing_node_ids.add(node_id)
+            new_brand_nodes += 1
+    log(f"  + {new_brands} marcas nuevas, {new_brand_nodes} nodos de marca nuevos")
+
+    # 3. Paginar productos
+    conn = get_db()
+    inserted = updated = skipped_no_brand = 0
+    by_brand_count = {}
+    new_leaf_nodes = 0
+    page = 1
+    MAX_PAGES = 50  # safety
+    while page <= MAX_PAGES:
+        log(f"  GET productos página {page}")
+        try:
+            r = requests.get(
+                f"{COLSEIN_ONLINE_API}/products",
+                params={"per_page": 100, "page": page}, timeout=30,
+                headers={"User-Agent": SCRAPER_USER_AGENT})
+        except Exception as e:
+            log(f"  error de red en página {page}: {e}")
+            break
+        if r.status_code == 400:
+            # Past last page; WC retorna 400 en lugar de array vacío
+            break
+        if r.status_code != 200:
+            log(f"  HTTP {r.status_code} en página {page}")
+            break
+        prods = r.json()
+        if not prods:
+            break
+        log(f"    {len(prods)} productos recibidos")
+
+        for p in prods:
+            mapped = _map_colsein_product(p, brand_cats_by_id, cats_map)
+            if not mapped:
+                skipped_no_brand += 1
+                continue
+            leaf_id = mapped["leaf"]
+            if leaf_id not in existing_node_ids:
+                parent = ".".join(leaf_id.split(".")[:-1])
+                if parent in existing_node_ids:
+                    tax["nodes"].append({
+                        "id": leaf_id,
+                        "label": mapped["leaf_label"],
+                        "parent": parent,
+                        "is_leaf": True,
+                        "level": 3,
+                        "trunk": "colsein-online",
+                    })
+                    existing_node_ids.add(leaf_id)
+                    new_leaf_nodes += 1
+            row = conn.execute("SELECT id FROM products WHERE id = ?", (mapped["id"],)).fetchone()
+            if row:
+                conn.execute("""UPDATE products SET
+                    brand=?, model=?, name=?, family=?, leaf=?, secondary_leaves=?,
+                    description=?, manufacturer_url=?, image_url=?,
+                    lifecycle=?, is_software=?, attributes=?, updated_at=CURRENT_TIMESTAMP
+                    WHERE id=?""",
+                    (mapped["brand"], mapped["model"], mapped["name"], mapped["family"],
+                     mapped["leaf"], json.dumps([]), mapped["description"],
+                     mapped["manufacturer_url"], mapped["image_url"],
+                     "active", 0, json.dumps(mapped["attributes"]), mapped["id"]))
+                updated += 1
+            else:
+                conn.execute("""INSERT INTO products
+                    (id, brand, model, name, family, leaf, secondary_leaves,
+                     description, manufacturer_url, image_url,
+                     lifecycle, is_software, attributes)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (mapped["id"], mapped["brand"], mapped["model"], mapped["name"],
+                     mapped["family"], mapped["leaf"], json.dumps([]),
+                     mapped["description"], mapped["manufacturer_url"], mapped["image_url"],
+                     "active", 0, json.dumps(mapped["attributes"])))
+                inserted += 1
+            by_brand_count[mapped["brand"]] = by_brand_count.get(mapped["brand"], 0) + 1
+        page += 1
+
+    log_operation(conn, "import", "colsein-online-api", inserted + updated,
+                  f"{inserted} nuevos, {updated} actualizados, {skipped_no_brand} sin marca")
+    conn.commit()
+    conn.close()
+
+    # 4. Persistir taxonomía
+    TAX_PATH.write_text(json.dumps(tax, ensure_ascii=False, indent=2), encoding="utf-8")
+    log(f"  taxonomía actualizada (+{new_leaf_nodes} hojas nuevas)")
+
+    return {
+        "inserted": inserted,
+        "updated": updated,
+        "skipped_no_brand": skipped_no_brand,
+        "by_brand": by_brand_count,
+        "new_brands": new_brands,
+        "new_leaf_nodes": new_leaf_nodes,
+        "pages_fetched": page - 1,
+    }
+
+
+# ============================================================================
 # Construcción de la app Flask (compartida por `serve` y wsgi.py / gunicorn)
 # ============================================================================
 def build_app():
@@ -1636,6 +1869,37 @@ def build_app():
             return jsonify({"ok": True, "html_path": str(out), "size_kb": round(os.path.getsize(out)/1024, 1)})
         except Exception as e:
             return jsonify({"error": str(e)}), 500
+
+    @app.route("/api/admin/import-colsein-online", methods=["POST"])
+    def api_admin_import_colsein():
+        """Importa todos los productos de colseinonline.com.co vía la API
+        pública de WooCommerce, auto-registrando marcas/categorías y
+        regenerando el HTML al final."""
+        if not require_admin():
+            return jsonify({"error": "no autorizado"}), 401
+        log_lines = []
+        try:
+            stats = import_colsein_online(progress_cb=log_lines.append)
+        except Exception as e:
+            return jsonify({"error": str(e), "log": log_lines}), 500
+
+        html_ok = False
+        try:
+            regen_html_from_template()
+            html_ok = True
+            log_lines.append("HTML regenerado")
+        except Exception as e:
+            log_lines.append(f"⚠ Error al regenerar HTML: {e}")
+
+        return jsonify({
+            "ok": True,
+            "stats": stats,
+            "html_regenerated": html_ok,
+            "log": log_lines,
+            "next_step": "Recarga la página con Ctrl+F5 para ver los productos. "
+                         "Después click en 'Actualizar filtros' para generar filtros "
+                         "automáticos basados en las nuevas categorías.",
+        })
 
     info(f"Endpoints admin disponibles bajo /api/admin/* (login: {ADMIN_USER}/***)")
 
