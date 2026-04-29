@@ -1398,13 +1398,20 @@ def build_app():
     # ========================================================================
     # Nota: la autenticación es básica (cookie de sesión). NO es seguridad real,
     # solo separa interfaces. Para seguridad real usar auth + HTTPS + secret real.
-    ADMIN_USER = os.environ.get("ADMIN_USER", "Felipe")
-    ADMIN_PASS = os.environ.get("ADMIN_PASS", "Felipe")
+    # Lee env var: si está ausente o vacía/whitespace, retorna el default.
+    # (Importante: os.environ.get(k, default) NO usa default si la var existe
+    # con valor vacío — y Railway/Heroku permiten guardar variables vacías.)
+    def _env(name, default):
+        val = (os.environ.get(name) or "").strip()
+        return val if val else default
+
+    ADMIN_USER = _env("ADMIN_USER", "Felipe")
+    ADMIN_PASS = _env("ADMIN_PASS", "Felipe")
     import secrets as _sec
-    app.secret_key = os.environ.get("FLASK_SECRET_KEY") or _sec.token_hex(32)
+    app.secret_key = _env("FLASK_SECRET_KEY", _sec.token_hex(32))
     _active_tokens = set()
     if ADMIN_PASS == "Felipe":
-        warn("ADMIN_PASS no configurado: usando contraseña por defecto 'Felipe'. "
+        warn("ADMIN_PASS no configurado o vacío: usando contraseña por defecto 'Felipe'. "
              "En producción exporta ADMIN_USER y ADMIN_PASS como variables de entorno.")
 
     def require_admin():
@@ -1420,7 +1427,11 @@ def build_app():
     @app.route("/api/admin/login", methods=["POST"])
     def api_admin_login():
         data = request.json or {}
-        if data.get("user") == ADMIN_USER and data.get("password") == ADMIN_PASS:
+        # Comparación tolerante: el username es case-insensitive y se le quitan
+        # espacios; la contraseña se compara exacta (puede contener espacios).
+        user_in = (data.get("user") or "").strip().lower()
+        pass_in = data.get("password") or ""
+        if user_in == ADMIN_USER.lower() and pass_in == ADMIN_PASS:
             tok = _sec.token_urlsafe(24)
             _active_tokens.add(tok)
             return jsonify({"ok": True, "token": tok})
