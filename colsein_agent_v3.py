@@ -2065,6 +2065,73 @@ def build_app():
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
+    @app.route("/api/admin/import-products-batch", methods=["POST"])
+    def api_admin_import_products_batch():
+        """Inserta o actualiza un batch de productos enviados en JSON.
+        Espera body: {"products": [{...}, ...]} con cada producto en formato
+        normalize_product. Usa upsert por id."""
+        if not require_admin():
+            return jsonify({"error": "no autorizado"}), 401
+        body = request.json or {}
+        products_in = body.get("products") or []
+        if not isinstance(products_in, list):
+            return jsonify({"error": "products debe ser array"}), 400
+
+        conn = get_db()
+        inserted = updated = skipped = 0
+        errors = []
+        for raw in products_in:
+            p = normalize_product(raw)
+            if not p:
+                skipped += 1
+                continue
+            try:
+                row = conn.execute("SELECT id FROM products WHERE id = ?", (p["id"],)).fetchone()
+                if row:
+                    conn.execute("""UPDATE products SET
+                        brand=?, model=?, name=?, family=?, leaf=?, secondary_leaves=?,
+                        description=?, manufacturer_url=?, datasheet_url=?, image_url=?,
+                        lifecycle=?, is_software=?, attributes=?, updated_at=CURRENT_TIMESTAMP
+                        WHERE id=?""",
+                        (p["brand"], p["model"], p["name"], p["family"], p["leaf"],
+                         json.dumps(p["secondary_leaves"]), p["description"],
+                         p["manufacturer_url"], p["datasheet_url"], p.get("image_url"),
+                         p["lifecycle"], p["is_software"], json.dumps(p["attributes"]),
+                         p["id"]))
+                    updated += 1
+                else:
+                    conn.execute("""INSERT INTO products
+                        (id, brand, model, name, family, leaf, secondary_leaves,
+                         description, manufacturer_url, datasheet_url, image_url,
+                         lifecycle, is_software, attributes)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                        (p["id"], p["brand"], p["model"], p["name"], p["family"], p["leaf"],
+                         json.dumps(p["secondary_leaves"]), p["description"],
+                         p["manufacturer_url"], p["datasheet_url"], p.get("image_url"),
+                         p["lifecycle"], p["is_software"], json.dumps(p["attributes"])))
+                    inserted += 1
+            except Exception as e:
+                errors.append({"id": p.get("id"), "error": str(e)})
+        log_operation(conn, "import", "scraped-batch", inserted + updated,
+                      f"{inserted} nuevos, {updated} actualizados, {skipped} omitidos")
+        conn.commit()
+        conn.close()
+        # Regenerar HTML
+        html_ok = False
+        try:
+            regen_html_from_template()
+            html_ok = True
+        except Exception as e:
+            errors.append({"html_regen": str(e)})
+        return jsonify({
+            "ok": True,
+            "inserted": inserted,
+            "updated": updated,
+            "skipped": skipped,
+            "errors": errors,
+            "html_regenerated": html_ok,
+        })
+
     @app.route("/api/admin/enrich-attributes", methods=["POST"])
     def api_admin_enrich_attributes():
         """Aplica el extractor de atributos por regex a todos los productos
