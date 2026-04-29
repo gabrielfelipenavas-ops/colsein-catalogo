@@ -1521,9 +1521,25 @@ function loginBody(){
   };
   const passInput = el("input", {
     type:"password", id:"csn-login-pass", class:"csn-input",
-    placeholder:"Pega aquí la contraseña", autocomplete:"current-password",
+    placeholder:"Pega o escribe la contraseña", autocomplete:"current-password",
+    style:"flex:1",
     onkeydown:onEnter
   });
+  const pasteBtn = el("button", {
+    type:"button", class:"csn-btn",
+    style:"flex-shrink:0",
+    title:"Lee la contraseña del portapapeles y la pega aquí",
+    onclick: async function(ev){
+      ev.preventDefault(); ev.stopPropagation();
+      try{
+        const txt = await navigator.clipboard.readText();
+        passInput.value = txt;
+        passInput.focus();
+      } catch(e){
+        alert("No pude leer del portapapeles. Permite acceso al portapapeles o pega manualmente con Ctrl+V dentro del campo.");
+      }
+    }
+  }, "📋 Pegar");
   const showToggle = el("input", {type:"checkbox", id:"csn-login-show", style:"margin-right:6px",
     onchange:(e)=>{ passInput.type = e.target.checked ? "text" : "password"; }
   });
@@ -1535,13 +1551,18 @@ function loginBody(){
     ),
     el("div", {class:"csn-form-group"},
       el("label", {class:"csn-form-label"}, "Contraseña"),
-      passInput,
+      el("div", {style:"display:flex;gap:6px"},
+        passInput,
+        pasteBtn
+      ),
       el("label", {style:"display:flex;align-items:center;margin-top:6px;font-size:12px;color:var(--csn-text-soft);cursor:pointer"},
         showToggle, "Mostrar contraseña")
     ),
     el("div", {class:"csn-helper", style:"font-size:10px"},
-      "Tip: copia la contraseña y pégala con Ctrl+V (o ⌘+V en Mac). " +
-      "Marca \"Mostrar contraseña\" para verificar que se pegó completa antes de continuar.")
+      "Cómo entrar: 1) copia la contraseña que te dio Claude, " +
+      "2) click en \"📋 Pegar\" (o Ctrl+V dentro del campo), " +
+      "3) marca \"Mostrar contraseña\" para verificar, " +
+      "4) Enter o click en \"Iniciar sesión\".")
   );
 }
 
@@ -1751,11 +1772,24 @@ function openModal(kind){
   const bar = el("div",{class:"csn-progress-bar"});
   const progress = el("div",{class:"csn-progress"}, bar);
   const bodyEl = cfg.body();
-  const closeFn = ()=>{ host.innerHTML = ""; renderAll(); };
+  // Esc cierra el modal (más estándar que click fuera).
+  const escHandler = (e)=>{
+    if(e.key === "Escape"){
+      e.preventDefault();
+      closeFn();
+    }
+  };
+  const closeFn = ()=>{
+    document.removeEventListener("keydown", escHandler);
+    host.innerHTML = "";
+    renderAll();
+  };
+  document.addEventListener("keydown", escHandler);
 
   const modal = el("div",{
-    class:"csn-modal-bg",
-    onclick:(e)=>{ if(e.target.classList.contains("csn-modal-bg")) closeFn(); }
+    class:"csn-modal-bg"
+    // Click fuera del modal NO cierra (evita cierres accidentales mientras se escribe).
+    // El usuario debe usar Cancelar, ✕ o Esc.
   },
     el("div",{class:"csn-modal"},
       el("div",{class:"csn-modal-head"},
