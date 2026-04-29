@@ -2115,6 +2115,73 @@ def build_app():
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
+    @app.route("/api/admin/register-filters", methods=["POST"])
+    def api_admin_register_filters():
+        """Registra attribute_definitions y leaf_filters en lote.
+        Body: {
+          "definitions": {"<attr_id>": {"label": "...", "kind": "enum|enum_multi", "field": "..."}, ...},
+          "leaf_filters": {"<leaf_id>": ["<attr_id>", ...], ...}
+        }
+        Para resolver el prompt 'definir atributos faltantes' que produce
+        refresh-filters cuando los atributos no estan en attribute_definitions."""
+        if not require_admin():
+            return jsonify({"error": "no autorizado"}), 401
+        body = request.json or {}
+        tax = load_taxonomy()
+        if "attribute_definitions" not in tax:
+            tax["attribute_definitions"] = {}
+        if "leaf_filters" not in tax:
+            tax["leaf_filters"] = {}
+
+        added_defs = 0
+        skipped_defs = 0
+        for aid, info in (body.get("definitions") or {}).items():
+            if not isinstance(info, dict) or "field" not in info:
+                continue
+            if aid in tax["attribute_definitions"]:
+                skipped_defs += 1
+                continue
+            tax["attribute_definitions"][aid] = {
+                "label": info.get("label") or aid,
+                "kind": info.get("kind") or "enum",
+                "field": info["field"],
+            }
+            added_defs += 1
+
+        added_filters = 0
+        unknown_attrs = []
+        for leaf, aids in (body.get("leaf_filters") or {}).items():
+            if leaf not in tax["leaf_filters"]:
+                tax["leaf_filters"][leaf] = []
+            existing = {f.get("id") for f in tax["leaf_filters"][leaf] if isinstance(f, dict)}
+            for aid in (aids or []):
+                if aid not in tax["attribute_definitions"]:
+                    unknown_attrs.append({"leaf": leaf, "attr": aid})
+                    continue
+                if aid in existing:
+                    continue
+                tax["leaf_filters"][leaf].append({"id": aid})
+                existing.add(aid)
+                added_filters += 1
+
+        TAX_PATH.write_text(json.dumps(tax, ensure_ascii=False, indent=2), encoding="utf-8")
+
+        html_ok = False
+        try:
+            regen_html_from_template()
+            html_ok = True
+        except Exception as e:
+            pass
+
+        return jsonify({
+            "ok": True,
+            "added_definitions": added_defs,
+            "skipped_definitions_already_present": skipped_defs,
+            "added_filters": added_filters,
+            "unknown_attrs": unknown_attrs,
+            "html_regenerated": html_ok,
+        })
+
     @app.route("/api/admin/import-products-batch", methods=["POST"])
     def api_admin_import_products_batch():
         """Inserta o actualiza un batch de productos enviados en JSON.
