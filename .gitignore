@@ -11,3 +11,11 @@ venv/
 colsein.db
 colsein_app.html
 colsein_app_v3.html
+
+# Outputs de testing/debug (no se commitean)
+*_resp.json
+import_resp.json
+refresh_*.json
+enrich_resp.json
+payload_*.json
+"Captura de pantalla*.png"

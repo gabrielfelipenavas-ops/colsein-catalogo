@@ -102,6 +102,7 @@
 .csn-filters-title{font-size:11px;color:var(--csn-text-muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
 .csn-filters-clear{font-size:11px;color:var(--csn-primary);cursor:pointer;background:none;border:none;font-family:inherit;text-transform:none;letter-spacing:0;font-weight:500;padding:0}
 .csn-filters-clear:hover{text-decoration:underline}
+.csn-filters-empty{padding:12px 6px;text-align:center;color:var(--csn-text-muted);font-size:12px;line-height:1.5}
 .csn-filter-group{margin-bottom:12px}
 .csn-filter-group:last-child{margin-bottom:0}
 .csn-filter-label{font-size:12px;color:var(--csn-text-soft);font-weight:600;margin-bottom:5px;display:flex;align-items:center;justify-content:space-between}
@@ -198,17 +199,19 @@
 .csn-table{width:100%;border-collapse:collapse;font-size:12px}
 .csn-table th{text-align:left;font-size:11px;text-transform:uppercase;color:var(--csn-text-muted);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--csn-border);letter-spacing:.05em;background:var(--csn-bg-soft)}
 .csn-table td{padding:7px 10px;border-bottom:1px solid var(--csn-border-light);color:var(--csn-text)}
-.csn-bar{height:6px;background:var(--csn-bg-muted);border-radius:3px;overflow:hidden;width:100px;display:inline-block;vertical-align:middle}
-.csn-bar-fill{height:100%;background:var(--csn-primary);border-radius:3px}
+.csn-mini-bar{height:6px;background:var(--csn-bg-muted);border-radius:3px;overflow:hidden;width:100px;display:inline-block;vertical-align:middle}
+.csn-mini-bar-fill{height:100%;background:var(--csn-primary);border-radius:3px}
 
 .csn-empty{padding:3rem 1rem;text-align:center;color:var(--csn-text-muted);font-size:13px}
 .csn-empty-strong{color:var(--csn-text);font-weight:600;margin-bottom:4px;font-size:14px}
 .csn-empty-icon{font-size:36px;color:var(--csn-border);margin-bottom:10px}
 
 /* === Admin / login === */
-.csn-user-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:14px;font-size:11px;font-weight:600;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.04em;cursor:pointer}
-.csn-user-badge:hover{background:rgba(255,255,255,.22)}
+.csn-user-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:14px;font-size:11px;font-weight:600;background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.04em;cursor:pointer;transition:all .15s;font-family:inherit}
+.csn-user-badge::after{content:" ▾";font-size:9px;opacity:.7}
+.csn-user-badge:hover{background:rgba(255,255,255,.32);border-color:rgba(255,255,255,.65);transform:translateY(-1px)}
 .csn-user-badge.admin{background:#fff;color:var(--csn-primary);border-color:#fff}
+.csn-user-badge.admin::after{content:" ✓";color:#0a8a3a}
 .csn-server-dot{width:7px;height:7px;border-radius:50%;background:#7cd882;display:inline-block;box-shadow:0 0 0 2px rgba(124,216,130,.25)}
 .csn-server-dot.offline{background:#999;box-shadow:none}
 
@@ -230,7 +233,7 @@
     <span class="csn-tagline">Selector inteligente de equipos · Automatización industrial</span>
     <span class="csn-header-spacer"></span>
     <div id="csn-source-info" style="font-size:11px;color:rgba(255,255,255,.85);text-align:right;margin-right:14px"></div>
-    <button id="csn-user-badge" class="csn-user-badge" title="Click para iniciar sesión">
+    <button id="csn-user-badge" class="csn-user-badge" title="Click para iniciar sesión como administrador (desbloquea: Importar Colsein Online, Buscar productos, Actualizar filtros, Enriquecer atributos)">
       <span id="csn-server-dot" class="csn-server-dot offline" title="Estado del servidor"></span>
       <span id="csn-user-label">Invitado</span>
     </button>
@@ -645,15 +648,16 @@ function renderFilters(){
   ));
 
   // 1. Filtros universales
+  let universalRendered = 0;
   universal.forEach(fdef => {
     const grp = renderFilterGroup(fdef, base, state.universalFilters, "universal");
-    if(grp) c.appendChild(grp);
+    if(grp){ c.appendChild(grp); universalRendered++; }
   });
 
   // 2. Filtros de hoja (cascada)
+  let leafRendered = 0;
   if(leafSpec){
     let progressiveBase = base.slice();
-    // aplicar universales para no repetir
     for(const fid in state.universalFilters){
       const val = state.universalFilters[fid];
       if(val == null || val === "") continue;
@@ -661,17 +665,39 @@ function renderFilters(){
       if(!ud) continue;
       progressiveBase = progressiveBase.filter(p=>matchFilter(p,fid,ud.kind,val));
     }
-    // aplicar uno a uno los leaf filters anteriores para que cada filtro siguiente
-    // sólo muestre opciones que dejarán productos
     leafSpec.forEach((fdef, idx) => {
       const grp = renderFilterGroup(fdef, progressiveBase, state.leafFilters, "leaf");
-      if(grp) c.appendChild(grp);
-      // aplicar el filtro actual al progressive base para el siguiente
+      if(grp){ c.appendChild(grp); leafRendered++; }
       const val = state.leafFilters[fdef.id];
       if(val != null && val !== ""){
         progressiveBase = progressiveBase.filter(p => matchFilter(p, fdef.id, fdef.kind, val));
       }
     });
+  }
+
+  // 3. Empty state — guía al usuario en vez de dejar la sección vacía
+  if(universalRendered + leafRendered === 0){
+    let msg, icon;
+    if(!state.selectedNode){
+      icon = "🌳";
+      msg = "Selecciona una categoría del árbol de la izquierda para ver filtros progresivos por características técnicas (rango, voltaje, IP, etc.).";
+    } else if(!leafSpec){
+      const node = byNode[state.selectedNode];
+      if(node && !node.is_leaf){
+        icon = "👈";
+        msg = "Esta es una categoría intermedia. Click en una sub-categoría hoja (las que tienen un número de productos) para ver filtros específicos.";
+      } else {
+        icon = "📋";
+        msg = "Esta hoja aún no tiene filtros progresivos configurados. Si entras como admin puedes generarlos automáticamente con el botón \"⚡ Actualizar filtros\".";
+      }
+    } else {
+      icon = "✦";
+      msg = "Los filtros para esta categoría no tienen suficientes valores distintos para refinar (necesitan ≥2 opciones por filtro).";
+    }
+    c.appendChild(el("div", {class:"csn-filters-empty"},
+      el("div", {style:"font-size:24px;margin-bottom:6px;opacity:.5"}, icon),
+      el("div", {}, msg)
+    ));
   }
 }
 
@@ -1978,7 +2004,7 @@ function renderQuality(){
     tb.appendChild(el("tr",{},
       el("td",{}, (byBrand[bid]&&byBrand[bid].name) || bid),
       el("td",{}, String(n)),
-      el("td",{}, el("div",{class:"csn-bar"}, el("div",{class:"csn-bar-fill", style:"width:"+Math.round(100*n/max)+"%"})))
+      el("td",{}, el("div",{class:"csn-mini-bar"}, el("div",{class:"csn-mini-bar-fill", style:"width:"+Math.round(100*n/max)+"%"})))
     ));
   });
   c.appendChild(el("table",{class:"csn-table"},
