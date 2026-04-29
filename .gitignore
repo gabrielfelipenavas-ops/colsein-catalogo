@@ -18,4 +18,5 @@ import_resp.json
 refresh_*.json
 enrich_resp.json
 payload_*.json
-"Captura de pantalla*.png"
+Captura*.png
+*.screenshot.png
