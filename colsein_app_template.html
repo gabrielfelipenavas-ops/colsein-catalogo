@@ -246,6 +246,7 @@
       <button class="csn-btn" data-modal="export"><span class="csn-btn-icon">⇓</span>Exportar</button>
       <button class="csn-btn csn-btn-primary" data-modal="addproduct"><span class="csn-btn-icon">＋</span>Agregar producto</button>
       <button class="csn-btn csn-admin-only csn-btn-primary" data-modal="importcolsein"><span class="csn-btn-icon">🛒</span>Importar Colsein Online</button>
+      <button class="csn-btn csn-admin-only" data-modal="enrichattrs"><span class="csn-btn-icon">✨</span>Enriquecer atributos</button>
       <button class="csn-btn csn-admin-only" data-modal="findmore"><span class="csn-btn-icon">🔎</span>Buscar productos</button>
       <button class="csn-btn csn-admin-only" data-modal="updatefilters"><span class="csn-btn-icon">⚡</span>Actualizar filtros</button>
       <button class="csn-btn" data-modal="refine"><span class="csn-btn-icon">⚙</span>Refinar</button>
@@ -1758,6 +1759,65 @@ async function runUpdateFilters(bar, le){
   }
 }
 
+// === Modal: Enriquecer atributos (regex sobre nombre+descripción) ===
+function enrichAttrsBody(){
+  return el("div", {},
+    el("div", {class:"csn-helper", style:"margin-bottom:12px"},
+      "Aplica un extractor de atributos por patrones (regex) sobre el nombre " +
+      "y descripción de cada producto importado de colseinonline.com.co. Saca " +
+      "atributos como tamaño, rango de detección, tipo de salida, conexión, " +
+      "grado IP, voltaje, HP, RPM, calibre AWG, etc."),
+    el("div", {class:"csn-helper", style:"font-size:11px"},
+      "• Sin LLM, sin costo. " +
+      "• Idempotente: no pisa atributos que ya existían. " +
+      "• Auto-registra las attribute_definitions que necesite. " +
+      "• Después de correr, click en \"Actualizar filtros\" para que aparezcan como filtros progresivos."),
+    el("div", {class:"csn-helper", style:"font-size:11px;margin-top:8px;color:var(--csn-warning,#a06000)"},
+      "⚠ Solo extrae lo que esté presente en el texto. Productos con descripción pobre " +
+      "extraen pocos atributos. Para enriquecimiento profundo desde datasheets PDF " +
+      "necesitas el paso futuro con Claude API.")
+  );
+}
+
+async function runEnrichAttrs(bar, le){
+  if(!admin.isLoggedIn){
+    logLine(le, "Debes iniciar sesión como admin primero", "danger");
+    return;
+  }
+  bar.style.width = "10%";
+  logLine(le, "[" + ts() + "] Llamando a /api/admin/enrich-attributes…");
+  try {
+    const res = await adminFetch("/api/admin/enrich-attributes", {method:"POST"});
+    bar.style.width = "85%";
+    if(res.error){
+      logLine(le, "✗ " + res.error, "danger");
+      (res.log || []).forEach(l => logLine(le, "  " + l));
+      return;
+    }
+    const s = res.stats || {};
+    logLine(le, "✓ Enriquecimiento completado", "success");
+    logLine(le, "  Productos analizados: " + (s.products_scanned || 0));
+    logLine(le, "  Productos con atributos nuevos: " + (s.products_updated || 0));
+    logLine(le, "  Atributos agregados (total): " + (s.attributes_added_total || 0));
+    logLine(le, "  Definiciones nuevas registradas: " + (s.new_attribute_definitions || 0));
+    if(s.attributes_used_count_per_id){
+      logLine(le, "─────────────────────────");
+      logLine(le, "Top atributos extraídos (id: cuántos productos lo tienen):");
+      const entries = Object.entries(s.attributes_used_count_per_id).sort((a,b)=>b[1]-a[1]);
+      entries.slice(0, 15).forEach(([k, n]) => logLine(le, "  • " + k + ": " + n));
+    }
+    if(res.html_regenerated){
+      logLine(le, "─────────────────────────");
+      logLine(le, "✓ HTML regenerado", "success");
+      logLine(le, "Próximo paso: \"Actualizar filtros\" → marca auto-aplicar → recarga la página.", "warning");
+    }
+    bar.style.width = "100%";
+    state.operations.push({kind:"enrich_attrs", count:(s.products_updated||0), ts:new Date().toISOString()});
+  } catch(e){
+    logLine(le, "✗ Error de red: " + e.message, "danger");
+  }
+}
+
 // === Modal: Importar Colsein Online (WooCommerce API) ===
 function importColseinBody(){
   return el("div", {},
@@ -1829,6 +1889,7 @@ function openModal(kind){
   else if(kind === "findmore") cfg = {title:"Buscar productos nuevos", sub:"El servidor visita las webs de los fabricantes y trae productos que aún no estén en la BD.", icon:"🔎", body:findMoreBody, run:runFindMore, actionLabel:"Buscar", runningLabel:"Buscando…"};
   else if(kind === "updatefilters") cfg = {title:"Actualizar filtros", sub:"Analiza la BD y propone (o aplica) los mejores filtros progresivos por hoja.", icon:"⚡", body:updateFiltersBody, run:runUpdateFilters, actionLabel:"Actualizar", runningLabel:"Analizando…"};
   else if(kind === "importcolsein") cfg = {title:"Importar de Colsein Online", sub:"Trae todos los productos de colseinonline.com.co (~700 productos) vía la API pública de WooCommerce. Auto-registra marcas y categorías.", icon:"🛒", body:importColseinBody, run:runImportColsein, actionLabel:"Importar todo", runningLabel:"Importando… (puede tardar 1-2 min)"};
+  else if(kind === "enrichattrs") cfg = {title:"Enriquecer atributos", sub:"Extrae specs (tamaño, rango, voltaje, HP, IP, etc.) del nombre y descripción de los productos importados.", icon:"✨", body:enrichAttrsBody, run:runEnrichAttrs, actionLabel:"Enriquecer", runningLabel:"Analizando texto…"};
   else cfg = {title:"Refinar dataset", sub:"Detecta clasificaciones débiles, repetidos y normaliza valores.", icon:"⚙", body:refineBody, run:runRefine, actionLabel:"Refinar", runningLabel:"Refinando…"};
 
   const logEl = el("div",{class:"csn-log"});

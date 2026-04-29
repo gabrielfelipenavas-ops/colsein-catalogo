@@ -1548,6 +1548,201 @@ def import_colsein_online(progress_cb=None):
 
 
 # ============================================================================
+# Enriquecedor de atributos: extrae specs estructuradas del nombre/descripción
+# de productos importados desde colseinonline.com.co (ID prefijo "colsein-online-").
+# Sin LLM: regex puros sobre patrones del catálogo Colsein.
+# ============================================================================
+
+# Cada tupla: (attribute_id, regex pattern, transform fn or None, flags)
+# El transform fn recibe el match group(1) (o el match completo si no hay grupo)
+# y retorna el valor a guardar (str/int/float/None).
+import re as _re
+
+def _norm_lower(s):
+    return s.strip().lower() if s else None
+
+def _norm_int(s):
+    try: return int(float(s))
+    except: return None
+
+def _norm_float(s):
+    try:
+        v = float(s)
+        return int(v) if v == int(v) else round(v, 2)
+    except: return None
+
+# Patrones genéricos aplicables a casi cualquier producto. El orden importa
+# (más específico primero). Si un pattern no matchea, simplemente se omite.
+ENRICH_PATTERNS = [
+    # ========== Sensores ==========
+    ("tipo_sensor", r"\b(inductivo|capacitivo|fotoel[ée]ctrico|fotoelectrico|ultras[oó]nico|magn[eé]tico)\b", _norm_lower, _re.I),
+    ("forma_sensor", r"\b(enrasado|no enrasado|no-enrasado|cuasi-enrasado|cilindrico|cil[íi]ndrico)\b", _norm_lower, _re.I),
+    ("tamano_metric", r"\btama[ñn]o\s+(M\d{1,2})\b", lambda s: s.upper(), _re.I),
+    ("tamano_metric_alt", r"\b(M\d{1,2})\s+(?:rango|rosca|cuerpo|cilindrico)", lambda s: s.upper(), _re.I),
+    ("rango_mm", r"\brango\s+(\d+(?:[\.,]\d+)?)\s*mm\b", lambda s: _norm_float(s.replace(",", ".")), _re.I),
+    ("salida_tipo", r"\bsalida\s+(PNP|NPN|push[-\s]?pull|push pull)\b", _norm_lower, _re.I),
+    ("salida_estado", r"\bsalida\s+\w+\s+(NO|NC|N\.O\.|N\.C\.)\b", lambda s: s.upper().replace(".", ""), _re.I),
+    ("conexion", r"\bconexi[óo]n\s+(M\d{1,2}|cable|terminal|bornera|cable\s+\d+\s*m)\b", _norm_lower, _re.I),
+    ("ip_rating", r"\bIP\s*(\d{2}(?:\s*\/\s*\d+K?)?)", lambda s: "IP" + s.replace(" ", ""), _re.I),
+    ("material_carcasa", r"\b(acero\s+inox(?:idable)?|niquelado|niquelada|lat[oó]n|pl[aá]stico|cromado|cromada)\b", _norm_lower, _re.I),
+    ("io_link", r"\b(IO[-\s]?Link)\b", lambda s: True, _re.I),
+    ("comunicacion_extra", r"\b(profinet|profibus|ethercat|ethernet|modbus|canopen|devicenet)\b", _norm_lower, _re.I),
+    # ========== Eléctricos / motor / variador ==========
+    ("voltaje_dc", r"\b(\d{1,3}(?:\s*-\s*\d{1,3})?)\s*V\s*DC\b", lambda s: s.replace(" ", ""), _re.I),
+    ("voltaje_ac", r"\b(\d{2,3}(?:\s*-\s*\d{2,3})?)\s*V\s*AC\b", lambda s: s.replace(" ", ""), _re.I),
+    ("voltaje", r"\b(24V|48V|110V|120V|208V|220V|230V|240V|277V|380V|400V|440V|480V|600V|690V)\b", lambda s: s.upper(), _re.I),
+    ("fases", r"\b(monof[aá]sico|trif[aá]sico|bif[aá]sico|1\s*fase|3\s*fases?)\b", _norm_lower, _re.I),
+    ("potencia_hp", r"\b(\d+(?:[\.,]\d+)?)\s*HP\b", lambda s: _norm_float(s.replace(",", ".")), _re.I),
+    ("potencia_kw", r"\b(\d+(?:[\.,]\d+)?)\s*k\s*W\b", lambda s: _norm_float(s.replace(",", ".")), _re.I),
+    ("rpm", r"\b(\d{3,5})\s*RPM\b", _norm_int, _re.I),
+    ("frame_iec", r"\b(?:frame|carcasa|tama[ñn]o)\s+(\d{2,3}[A-Za-z]?)\b", lambda s: s.upper(), _re.I),
+    ("polos_motor", r"\b(2|4|6|8)\s*polos\b", _norm_int, _re.I),
+    # ========== Corriente / breakers / contactores ==========
+    ("corriente_a", r"\b(\d{1,4}(?:[\.,]\d+)?)\s*A\b(?!.*HP)", lambda s: _norm_float(s.replace(",", ".")), _re.I),
+    ("polos_interruptor", r"\b(\d)P\+?N?\b(?=.*polo)", _norm_int, _re.I),
+    # ========== HMIs / PLCs ==========
+    ("display_pulgadas", r"\b(\d+(?:[\.,]\d+)?)\s*(?:pulgadas|inch|\"|''|in)\b", lambda s: _norm_float(s.replace(",", ".")), _re.I),
+    ("ethernet_ports", r"\b(\d+)\s*ethernet\b", _norm_int, _re.I),
+    # ========== Cables ==========
+    ("calibre_awg", r"\b(\d{1,2})\s*AWG\b", _norm_int, _re.I),
+    ("conductores", r"\b(\d{1,2})\s*x\s*\d", _norm_int, _re.I),
+    ("apantallado", r"\b(apantallado|blindado|shielded|sin\s+apantall)\b", _norm_lower, _re.I),
+    # ========== Mecánicos (Item, Troax) ==========
+    ("perfil_aluminio", r"\bperfil\s+(\d+x\d+)\b", lambda s: s.lower(), _re.I),
+    ("altura_panel", r"\b(\d+)\s*mm\s+altura\b", _norm_int, _re.I),
+]
+
+
+def _extract_attributes(text):
+    """Aplica todos los patrones a un string y retorna dict con los matches."""
+    attrs = {}
+    if not text:
+        return attrs
+    for entry in ENRICH_PATTERNS:
+        if len(entry) == 4:
+            attr_id, pattern, transform, flags = entry
+        else:
+            attr_id, pattern, transform = entry
+            flags = 0
+        # Si ya tenemos este atributo, omitir (el primer match gana)
+        if attr_id in attrs:
+            continue
+        m = _re.search(pattern, text, flags)
+        if not m:
+            continue
+        try:
+            raw = m.group(1) if m.groups() else m.group(0)
+        except IndexError:
+            raw = m.group(0)
+        val = transform(raw) if transform else raw
+        if val is None:
+            continue
+        attrs[attr_id] = val
+    return attrs
+
+
+# Definiciones de atributos para taxonomy_editable.json. Auto-se registran
+# las que sean usadas por al menos un producto.
+ENRICH_ATTRIBUTE_DEFS = {
+    "tipo_sensor":         {"label": "Tipo de sensor", "kind": "enum", "field": "tipo_sensor"},
+    "forma_sensor":        {"label": "Forma", "kind": "enum", "field": "forma_sensor"},
+    "tamano_metric":       {"label": "Tamaño rosca", "kind": "enum", "field": "tamano_metric"},
+    "tamano_metric_alt":   {"label": "Tamaño cuerpo", "kind": "enum", "field": "tamano_metric_alt"},
+    "rango_mm":            {"label": "Rango (mm)", "kind": "enum", "field": "rango_mm"},
+    "salida_tipo":         {"label": "Tipo de salida", "kind": "enum", "field": "salida_tipo"},
+    "salida_estado":       {"label": "Estado salida", "kind": "enum", "field": "salida_estado"},
+    "conexion":            {"label": "Conexión", "kind": "enum", "field": "conexion"},
+    "ip_rating":           {"label": "Grado IP", "kind": "enum", "field": "ip_rating"},
+    "material_carcasa":    {"label": "Material carcasa", "kind": "enum", "field": "material_carcasa"},
+    "io_link":             {"label": "IO-Link", "kind": "enum", "field": "io_link"},
+    "comunicacion_extra":  {"label": "Comunicación", "kind": "enum", "field": "comunicacion_extra"},
+    "voltaje_dc":          {"label": "Voltaje DC", "kind": "enum", "field": "voltaje_dc"},
+    "voltaje_ac":          {"label": "Voltaje AC", "kind": "enum", "field": "voltaje_ac"},
+    "voltaje":             {"label": "Voltaje", "kind": "enum", "field": "voltaje"},
+    "fases":               {"label": "Fases", "kind": "enum", "field": "fases"},
+    "potencia_hp":         {"label": "Potencia (HP)", "kind": "enum", "field": "potencia_hp"},
+    "potencia_kw":         {"label": "Potencia (kW)", "kind": "enum", "field": "potencia_kw"},
+    "rpm":                 {"label": "RPM", "kind": "enum", "field": "rpm"},
+    "frame_iec":           {"label": "Frame", "kind": "enum", "field": "frame_iec"},
+    "polos_motor":         {"label": "Polos motor", "kind": "enum", "field": "polos_motor"},
+    "corriente_a":         {"label": "Corriente (A)", "kind": "enum", "field": "corriente_a"},
+    "polos_interruptor":   {"label": "Polos interruptor", "kind": "enum", "field": "polos_interruptor"},
+    "display_pulgadas":    {"label": "Display (\")", "kind": "enum", "field": "display_pulgadas"},
+    "ethernet_ports":      {"label": "Puertos Ethernet", "kind": "enum", "field": "ethernet_ports"},
+    "calibre_awg":         {"label": "Calibre AWG", "kind": "enum", "field": "calibre_awg"},
+    "conductores":         {"label": "Conductores", "kind": "enum", "field": "conductores"},
+    "apantallado":         {"label": "Apantallado", "kind": "enum", "field": "apantallado"},
+    "perfil_aluminio":     {"label": "Perfil aluminio", "kind": "enum", "field": "perfil_aluminio"},
+    "altura_panel":        {"label": "Altura panel (mm)", "kind": "enum", "field": "altura_panel"},
+}
+
+
+def enrich_colsein_attributes(progress_cb=None):
+    """Recorre productos importados desde colseinonline.com.co y aplica los
+    patrones de extracción a (name + description). Suma los atributos
+    extraídos a los existentes (sin pisar). Auto-registra attribute_definitions.
+
+    Retorna stats dict."""
+    log = (progress_cb or (lambda *a, **k: None))
+    conn = get_db()
+    rows = conn.execute(
+        "SELECT id, name, description, attributes FROM products "
+        "WHERE id LIKE 'colsein-online-%'"
+    ).fetchall()
+    log(f"Productos a enriquecer: {len(rows)}")
+
+    used_attr_ids = set()
+    products_updated = 0
+    attr_added_total = 0
+    attr_count_per_id = {}
+
+    for row in rows:
+        existing_attrs = json.loads(row["attributes"] or "{}")
+        text = ((row["name"] or "") + " " + (row["description"] or "")).strip()
+        new_attrs = _extract_attributes(text)
+        if not new_attrs:
+            continue
+        # No pisar atributos existentes (preferimos lo manual)
+        added_here = 0
+        for k, v in new_attrs.items():
+            if k not in existing_attrs:
+                existing_attrs[k] = v
+                used_attr_ids.add(k)
+                attr_count_per_id[k] = attr_count_per_id.get(k, 0) + 1
+                added_here += 1
+        if added_here > 0:
+            conn.execute("UPDATE products SET attributes=?, updated_at=CURRENT_TIMESTAMP WHERE id=?",
+                         (json.dumps(existing_attrs), row["id"]))
+            products_updated += 1
+            attr_added_total += added_here
+
+    log_operation(conn, "update", "enrich-colsein", products_updated,
+                  f"+{attr_added_total} atributos en {products_updated} productos")
+    conn.commit()
+    conn.close()
+
+    # Registrar attribute_definitions usadas
+    tax = load_taxonomy()
+    if "attribute_definitions" not in tax:
+        tax["attribute_definitions"] = {}
+    new_defs = 0
+    for aid in used_attr_ids:
+        if aid not in tax["attribute_definitions"] and aid in ENRICH_ATTRIBUTE_DEFS:
+            tax["attribute_definitions"][aid] = ENRICH_ATTRIBUTE_DEFS[aid]
+            new_defs += 1
+    TAX_PATH.write_text(json.dumps(tax, ensure_ascii=False, indent=2), encoding="utf-8")
+    log(f"  +{new_defs} attribute_definitions registradas")
+
+    return {
+        "products_scanned": len(rows),
+        "products_updated": products_updated,
+        "attributes_added_total": attr_added_total,
+        "attributes_used_count_per_id": attr_count_per_id,
+        "new_attribute_definitions": new_defs,
+    }
+
+
+# ============================================================================
 # Construcción de la app Flask (compartida por `serve` y wsgi.py / gunicorn)
 # ============================================================================
 def build_app():
@@ -1869,6 +2064,33 @@ def build_app():
             return jsonify({"ok": True, "html_path": str(out), "size_kb": round(os.path.getsize(out)/1024, 1)})
         except Exception as e:
             return jsonify({"error": str(e)}), 500
+
+    @app.route("/api/admin/enrich-attributes", methods=["POST"])
+    def api_admin_enrich_attributes():
+        """Aplica el extractor de atributos por regex a todos los productos
+        de colseinonline.com.co existentes. No usa LLM. Idempotente."""
+        if not require_admin():
+            return jsonify({"error": "no autorizado"}), 401
+        log_lines = []
+        try:
+            stats = enrich_colsein_attributes(progress_cb=log_lines.append)
+        except Exception as e:
+            return jsonify({"error": str(e), "log": log_lines}), 500
+        # Regenerar HTML para que el frontend vea los nuevos atributos
+        try:
+            regen_html_from_template()
+            html_ok = True
+        except Exception as e:
+            log_lines.append(f"⚠ Error regenerando HTML: {e}")
+            html_ok = False
+        return jsonify({
+            "ok": True,
+            "stats": stats,
+            "html_regenerated": html_ok,
+            "log": log_lines,
+            "next_step": "Click en 'Actualizar filtros' con auto-aplicar marcado "
+                         "para que los nuevos atributos se conviertan en filtros progresivos.",
+        })
 
     @app.route("/api/admin/import-colsein-online", methods=["POST"])
     def api_admin_import_colsein():
