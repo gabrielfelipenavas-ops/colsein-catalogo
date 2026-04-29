@@ -1511,19 +1511,37 @@ function loginBody(){
         "http://localhost:8000")
     );
   }
+  // Enter en cualquier campo dispara el botón principal del modal
+  const onEnter = (e)=>{
+    if(e.key === "Enter"){
+      e.preventDefault();
+      const btn = document.getElementById("csn-modal-run");
+      if(btn) btn.click();
+    }
+  };
+  const passInput = el("input", {
+    type:"password", id:"csn-login-pass", class:"csn-input",
+    placeholder:"Pega aquí la contraseña", autocomplete:"current-password",
+    onkeydown:onEnter
+  });
+  const showToggle = el("input", {type:"checkbox", id:"csn-login-show", style:"margin-right:6px",
+    onchange:(e)=>{ passInput.type = e.target.checked ? "text" : "password"; }
+  });
   return el("div", {},
     el("div", {class:"csn-form-group"},
       el("label", {class:"csn-form-label"}, "Usuario"),
-      el("input", {type:"text", id:"csn-login-user", class:"csn-input", placeholder:"Felipe"})
+      el("input", {type:"text", id:"csn-login-user", class:"csn-input",
+        placeholder:"felipe", value:"felipe", autocomplete:"username", onkeydown:onEnter})
     ),
     el("div", {class:"csn-form-group"},
       el("label", {class:"csn-form-label"}, "Contraseña"),
-      el("input", {type:"password", id:"csn-login-pass", class:"csn-input", placeholder:"••••••"})
+      passInput,
+      el("label", {style:"display:flex;align-items:center;margin-top:6px;font-size:12px;color:var(--csn-text-soft);cursor:pointer"},
+        showToggle, "Mostrar contraseña")
     ),
     el("div", {class:"csn-helper", style:"font-size:10px"},
-      "⚠ Aviso de seguridad: este login es básico, sirve para separar interfaces " +
-      "(admin vs invitado) pero no protege la BD si alguien tiene acceso al servidor. " +
-      "Para uso público con varios usuarios necesitas auth real con HTTPS y secrets.")
+      "Tip: copia la contraseña y pégala con Ctrl+V (o ⌘+V en Mac). " +
+      "Marca \"Mostrar contraseña\" para verificar que se pegó completa antes de continuar.")
   );
 }
 
@@ -1721,13 +1739,13 @@ async function runUpdateFilters(bar, le){
 function openModal(kind){
   const host = $("#csn-modal-host");
   let cfg;
-  if(kind === "import") cfg = {title:"Importar productos desde JSON", sub:"Pega o sube un archivo JSON exportado desde Python o generado con Claude AI.", icon:"⇑", body:importBody, run:runImport};
-  else if(kind === "export") cfg = {title:"Exportar dataset", sub:"Descarga un archivo JSON con todos los productos y configuración actual.", icon:"⇓", body:exportBody, run:runExport};
-  else if(kind === "addproduct") cfg = {title:"Agregar nuevo producto", sub:"Completa los campos y se guardará en el dataset (memoria de sesión).", icon:"＋", body:addProductBody, run:runAddProduct};
-  else if(kind === "login") cfg = {title:"Iniciar sesión", sub:"Acceso al modo administrador. Requiere servidor Python local en ejecución.", icon:"🔐", body:loginBody, run:runLogin};
-  else if(kind === "findmore") cfg = {title:"Buscar productos nuevos", sub:"El servidor visita las webs de los fabricantes y trae productos que aún no estén en la BD.", icon:"🔎", body:findMoreBody, run:runFindMore};
-  else if(kind === "updatefilters") cfg = {title:"Actualizar filtros", sub:"Analiza la BD y propone (o aplica) los mejores filtros progresivos por hoja.", icon:"⚡", body:updateFiltersBody, run:runUpdateFilters};
-  else cfg = {title:"Refinar dataset", sub:"Detecta clasificaciones débiles, repetidos y normaliza valores.", icon:"⚙", body:refineBody, run:runRefine};
+  if(kind === "import") cfg = {title:"Importar productos desde JSON", sub:"Pega o sube un archivo JSON exportado desde Python o generado con Claude AI.", icon:"⇑", body:importBody, run:runImport, actionLabel:"Importar", runningLabel:"Importando…"};
+  else if(kind === "export") cfg = {title:"Exportar dataset", sub:"Descarga un archivo JSON con todos los productos y configuración actual.", icon:"⇓", body:exportBody, run:runExport, actionLabel:"Exportar", runningLabel:"Exportando…"};
+  else if(kind === "addproduct") cfg = {title:"Agregar nuevo producto", sub:"Completa los campos y se guardará en el dataset (memoria de sesión).", icon:"＋", body:addProductBody, run:runAddProduct, actionLabel:"Agregar", runningLabel:"Guardando…"};
+  else if(kind === "login") cfg = {title:"Iniciar sesión", sub:"Acceso al modo administrador.", icon:"🔐", body:loginBody, run:runLogin, actionLabel:"Iniciar sesión", runningLabel:"Validando…", doneLabel:"Cerrar"};
+  else if(kind === "findmore") cfg = {title:"Buscar productos nuevos", sub:"El servidor visita las webs de los fabricantes y trae productos que aún no estén en la BD.", icon:"🔎", body:findMoreBody, run:runFindMore, actionLabel:"Buscar", runningLabel:"Buscando…"};
+  else if(kind === "updatefilters") cfg = {title:"Actualizar filtros", sub:"Analiza la BD y propone (o aplica) los mejores filtros progresivos por hoja.", icon:"⚡", body:updateFiltersBody, run:runUpdateFilters, actionLabel:"Actualizar", runningLabel:"Analizando…"};
+  else cfg = {title:"Refinar dataset", sub:"Detecta clasificaciones débiles, repetidos y normaliza valores.", icon:"⚙", body:refineBody, run:runRefine, actionLabel:"Refinar", runningLabel:"Refinando…"};
 
   const logEl = el("div",{class:"csn-log"});
   const bar = el("div",{class:"csn-progress-bar"});
@@ -1750,15 +1768,15 @@ function openModal(kind){
       ),
       el("div",{class:"csn-modal-body"}, bodyEl, progress, logEl),
       el("div",{class:"csn-modal-foot"},
-        el("button",{class:"csn-btn", onclick:closeFn}, "Cerrar"),
+        el("button",{class:"csn-btn", onclick:closeFn}, cfg.cancelLabel || "Cancelar"),
         el("button",{class:"csn-btn csn-btn-primary", id:"csn-modal-run", onclick: async function(ev){
           const btn = ev.currentTarget;
-          btn.disabled = true; btn.textContent = "Ejecutando…";
+          btn.disabled = true; btn.textContent = cfg.runningLabel || "Ejecutando…";
           await cfg.run(bar, logEl);
-          btn.textContent = "Hecho — cerrar";
+          btn.textContent = cfg.doneLabel || "Cerrar";
           btn.disabled = false;
           btn.onclick = closeFn;
-        }}, "Ejecutar")
+        }}, cfg.actionLabel || "Aceptar")
       )
     )
   );
