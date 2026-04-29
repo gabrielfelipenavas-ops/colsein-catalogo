@@ -9,10 +9,6 @@ export DATA_DIR="${DATA_DIR:-/data}"
 mkdir -p "$DATA_DIR"
 
 echo "[start] DATA_DIR=$DATA_DIR"
-# Diagnóstico de env vars (solo longitud, NO valores)
-echo "[start] ADMIN_USER length: ${#ADMIN_USER}  (esperado: 6 si vale 'felipe')"
-echo "[start] ADMIN_PASS length: ${#ADMIN_PASS}  (esperado: 32 si tiene la pass generada)"
-echo "[start] FLASK_SECRET_KEY length: ${#FLASK_SECRET_KEY}  (esperado: 64)"
 
 # 1. Sembrar taxonomía la primera vez (luego admin la edita en el volumen)
 if [ ! -f "$DATA_DIR/taxonomy_editable.json" ]; then
