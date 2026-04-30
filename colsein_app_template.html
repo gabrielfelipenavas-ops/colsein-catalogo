@@ -677,7 +677,14 @@ function renderFilters(){
       if(!ud) continue;
       progressiveBase = progressiveBase.filter(p=>matchFilter(p,fid,ud.kind,val));
     }
-    leafSpec.forEach((fdef, idx) => {
+    leafSpec.forEach((fdefRaw, idx) => {
+      // Enriquecer fdef con kind/label de attribute_definitions si solo viene {id}
+      const def = (DATA.attribute_definitions || {})[fdefRaw.id];
+      const fdef = (fdefRaw.kind && fdefRaw.label) ? fdefRaw : Object.assign(
+        {kind: (def && def.kind) || "enum",
+         label: (def && def.label) || fdefRaw.id},
+        fdefRaw
+      );
       const grp = renderFilterGroup(fdef, progressiveBase, state.leafFilters, "leaf");
       if(grp){ c.appendChild(grp); leafRendered++; }
       const val = state.leafFilters[fdef.id];
