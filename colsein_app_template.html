@@ -103,6 +103,12 @@
 .csn-filters-clear{font-size:11px;color:var(--csn-primary);cursor:pointer;background:none;border:none;font-family:inherit;text-transform:none;letter-spacing:0;font-weight:500;padding:0}
 .csn-filters-clear:hover{text-decoration:underline}
 .csn-filters-empty{padding:12px 6px;text-align:center;color:var(--csn-text-muted);font-size:12px;line-height:1.5}
+
+/* === Icono de informacion (tooltip) === */
+.csn-info{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:var(--csn-text-muted);color:#fff;font-size:9px;font-weight:700;font-style:italic;cursor:help;margin-left:6px;vertical-align:middle;font-family:Georgia,serif;flex-shrink:0;transition:background .15s}
+.csn-info:hover{background:var(--csn-primary)}
+.csn-info-toolbar{background:rgba(255,255,255,.6);color:var(--csn-primary);width:13px;height:13px;font-size:9px;margin-left:4px}
+.csn-info-toolbar:hover{background:#fff;color:var(--csn-primary-dark)}
 .csn-filter-group{margin-bottom:12px}
 .csn-filter-group:last-child{margin-bottom:0}
 .csn-filter-label{font-size:12px;color:var(--csn-text-soft);font-weight:600;margin-bottom:5px;display:flex;align-items:center;justify-content:space-between}
@@ -246,14 +252,14 @@
       <button class="csn-tab" data-view="quality">Calidad de datos</button>
     </div>
     <div class="csn-actions">
-      <button class="csn-btn" data-modal="import"><span class="csn-btn-icon">⇑</span>Importar JSON</button>
-      <button class="csn-btn" data-modal="export"><span class="csn-btn-icon">⇓</span>Exportar</button>
-      <button class="csn-btn csn-btn-primary" data-modal="addproduct"><span class="csn-btn-icon">＋</span>Agregar producto</button>
-      <button class="csn-btn csn-admin-only csn-btn-primary" data-modal="importcolsein"><span class="csn-btn-icon">🛒</span>Importar Colsein Online</button>
-      <button class="csn-btn csn-admin-only" data-modal="enrichattrs"><span class="csn-btn-icon">✨</span>Enriquecer atributos</button>
-      <button class="csn-btn csn-admin-only" data-modal="findmore"><span class="csn-btn-icon">🔎</span>Buscar productos</button>
-      <button class="csn-btn csn-admin-only" data-modal="updatefilters"><span class="csn-btn-icon">⚡</span>Actualizar filtros</button>
-      <button class="csn-btn" data-modal="refine"><span class="csn-btn-icon">⚙</span>Refinar</button>
+      <button class="csn-btn" data-modal="import" title="Importar productos desde un archivo JSON exportado (de Python o de Claude AI)"><span class="csn-btn-icon">⇑</span>Importar JSON</button>
+      <button class="csn-btn" data-modal="export" title="Descargar todo el dataset (productos + taxonomía + filtros) como un solo JSON"><span class="csn-btn-icon">⇓</span>Exportar</button>
+      <button class="csn-btn csn-btn-primary" data-modal="addproduct" title="Agregar 1 producto manualmente con sus atributos (queda solo en memoria del navegador hasta que exportes)"><span class="csn-btn-icon">＋</span>Agregar producto</button>
+      <button class="csn-btn csn-admin-only csn-btn-primary" data-modal="importcolsein" title="Trae todos los productos publicados en colseinonline.com.co vía la API pública de WooCommerce. Auto-registra marcas y categorías."><span class="csn-btn-icon">🛒</span>Importar Colsein Online</button>
+      <button class="csn-btn csn-admin-only" data-modal="enrichattrs" title="Aplica un extractor de atributos por regex sobre nombre/descripción de productos importados. Saca rango_mm, salida_tipo, conexión, IP, voltaje, HP, RPM, AWG, etc. Sin LLM, sin costo."><span class="csn-btn-icon">✨</span>Enriquecer atributos</button>
+      <button class="csn-btn csn-admin-only" data-modal="findmore" title="Scrapea el sitio web de un fabricante. Aviso: SICK/Phoenix/ABB bloquean bots con HTTP 403. Funciona mejor con fabricantes pequeños (Unitronics, Janitza)."><span class="csn-btn-icon">🔎</span>Buscar productos</button>
+      <button class="csn-btn csn-admin-only" data-modal="updatefilters" title="Analiza la BD por hoja, calcula el poder discriminante (entropía Shannon × cobertura) de cada atributo, y aplica los mejores filtros progresivos."><span class="csn-btn-icon">⚡</span>Actualizar filtros</button>
+      <button class="csn-btn" data-modal="refine" title="Limpia y normaliza el dataset: detecta clasificaciones débiles, productos repetidos, atributos inconsistentes."><span class="csn-btn-icon">⚙</span>Refinar</button>
     </div>
   </div>
 
@@ -337,6 +343,12 @@ DATA.taxonomy.forEach(n=>{
 // shorthand DOM helpers
 const $ = (s,r)=>(r||document).querySelector(s);
 const $$ = (s,r)=>Array.from((r||document).querySelectorAll(s));
+
+// Icono de info: span con title (tooltip nativo del navegador)
+function infoIcon(text, opts){
+  const cls = (opts && opts.toolbar) ? "csn-info csn-info-toolbar" : "csn-info";
+  return el("span", {class:cls, title:text, "aria-label":text}, "i");
+}
 function el(tag,attrs){
   const e=document.createElement(tag);
   if(attrs)for(const k in attrs){
@@ -1634,11 +1646,21 @@ function findMoreBody(){
   });
   return el("div", {},
     el("div", {class:"csn-form-group"},
-      el("label", {class:"csn-form-label"}, "Marca a buscar"),
+      el("label", {class:"csn-form-label"},
+        "Marca a buscar",
+        infoIcon("Selecciona una marca específica para scrapear su sitio web, o " +
+          "\"Todas las marcas\" para repartir el target entre todas. " +
+          "Importante: muchos fabricantes industriales (SICK, Phoenix, ABB) bloquean bots " +
+          "y devuelven HTTP 403 — el log te lo dirá.")
+      ),
       brandSel
     ),
     el("div", {class:"csn-form-group"},
-      el("label", {class:"csn-form-label"}, "Cantidad mínima de productos a sumar"),
+      el("label", {class:"csn-form-label"},
+        "Cantidad mínima de productos a sumar",
+        infoIcon("Cuántos productos NUEVOS intenta agregar el scraper. Si la marca " +
+          "tiene menos disponibles, el resultado será menor. Default 200.")
+      ),
       el("input", {type:"number", id:"csn-fm-target", class:"csn-input", value:"200", min:"50", max:"1000", step:"50"})
     ),
     el("div", {class:"csn-helper"},
@@ -1692,17 +1714,32 @@ function updateFiltersBody(){
       "El servidor analizará la BD por hoja, calculará el poder discriminante " +
       "(entropía Shannon × cobertura) de cada atributo, y propondrá los mejores filtros nuevos."),
     el("div", {class:"csn-form-group", style:"margin-top:14px"},
-      el("label", {class:"csn-form-label"}, "Mínimo de productos por hoja para considerarla"),
+      el("label", {class:"csn-form-label"},
+        "Mínimo de productos por hoja para considerarla",
+        infoIcon("Solo se analizan hojas que tengan al menos esta cantidad de productos. " +
+          "Hojas con menos productos no generan filtros útiles. " +
+          "Default 5: balance razonable. Si tienes hojas pequeñas que necesitan filtros, baja a 3.")
+      ),
       el("input", {type:"number", id:"csn-uf-minp", class:"csn-input", value:"5", min:"3", max:"50"})
     ),
     el("div", {class:"csn-form-group"},
-      el("label", {class:"csn-form-label"}, "Score mínimo para auto-aplicar (0-1)"),
+      el("label", {class:"csn-form-label"},
+        "Score mínimo para auto-aplicar (0-1)",
+        infoIcon("Cada filtro candidato se le calcula un \"score\" que mide qué tan bien discrimina " +
+          "los productos (entropía Shannon × cobertura). " +
+          "Score 1 = filtro perfecto que separa todo en grupos iguales. " +
+          "Score 0 = no discrimina nada. " +
+          "Default 0.6: solo aplica filtros buenos. Bajar a 0.4 si quieres más filtros aunque sean menos discriminantes.")
+      ),
       el("input", {type:"number", id:"csn-uf-minscore", class:"csn-input", value:"0.6", min:"0.3", max:"0.95", step:"0.05"})
     ),
     el("div", {class:"csn-form-group"},
       el("label", {style:"font-size:13px;display:flex;align-items:center;gap:7px"},
         el("input", {type:"checkbox", id:"csn-uf-auto", checked:"checked"}),
-        " Aplicar automáticamente las que tengan attribute_id ya definido"
+        " Aplicar automáticamente las que tengan attribute_id ya definido",
+        infoIcon("Si está marcado, los filtros con definición de atributo ya registrada se " +
+          "agregan directo a las hojas. Si está desmarcado, solo verás las sugerencias " +
+          "sin modificar la taxonomía.")
       )
     ),
     el("div", {class:"csn-helper"},
