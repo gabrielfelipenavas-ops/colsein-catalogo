@@ -2219,6 +2219,73 @@ def build_app():
             "html_regenerated": html_ok,
         })
 
+    @app.route("/api/admin/delete-nodes", methods=["POST"])
+    def api_admin_delete_nodes():
+        """Borra nodos de taxonomia (y todos sus descendientes) ademas de los
+        leaf_filters asociados. Body: {"trunks": ["phoenix-contact", ...]} o
+        {"node_ids": ["foo.bar", ...]}.
+
+        No mueve productos: los que apuntaban a esas hojas quedan huerfanos
+        hasta que se reasignen via import-products-batch (orden recomendado:
+        primero reasignar, despues borrar nodos)."""
+        if not require_admin():
+            return jsonify({"error": "no autorizado"}), 401
+        body = request.json or {}
+        trunks = body.get("trunks") or []
+        explicit = body.get("node_ids") or []
+        if not isinstance(trunks, list) or not isinstance(explicit, list):
+            return jsonify({"error": "trunks/node_ids deben ser arrays"}), 400
+        tax = load_taxonomy()
+        nodes = tax.get("nodes", [])
+
+        def matches(nid):
+            if nid in explicit:
+                return True
+            for t in trunks:
+                if nid == t or nid.startswith(t + "."):
+                    return True
+            return False
+
+        to_remove = {n["id"] for n in nodes if matches(n.get("id", ""))}
+        new_nodes = [n for n in nodes if n.get("id") not in to_remove]
+        new_filters = {k: v for k, v in (tax.get("leaf_filters") or {}).items()
+                       if k not in to_remove}
+        tax["nodes"] = new_nodes
+        tax["leaf_filters"] = new_filters
+        TAX_PATH.write_text(json.dumps(tax, ensure_ascii=False, indent=2),
+                            encoding="utf-8")
+
+        # Productos huerfanos: cuantos productos apuntan a un nodo borrado?
+        conn = get_db()
+        orphan_count = 0
+        if to_remove:
+            placeholders = ",".join(["?"] * len(to_remove))
+            row = conn.execute(
+                f"SELECT COUNT(*) FROM products WHERE leaf IN ({placeholders})",
+                tuple(to_remove)).fetchone()
+            orphan_count = row[0] if row else 0
+        log_operation(conn, "taxonomy", "delete-nodes", len(to_remove),
+                      f"borrados {len(to_remove)}, huerfanos {orphan_count}")
+        conn.commit()
+        conn.close()
+
+        html_ok = False
+        try:
+            regen_html_from_template()
+            html_ok = True
+        except Exception:
+            pass
+
+        return jsonify({
+            "ok": True,
+            "removed_nodes": sorted(to_remove),
+            "removed_count": len(to_remove),
+            "leaf_filters_removed": [k for k in (tax.get("leaf_filters") or {})
+                                     if k in to_remove],
+            "orphan_products": orphan_count,
+            "html_regenerated": html_ok,
+        })
+
     @app.route("/api/admin/upload-images-batch", methods=["POST"])
     def api_admin_upload_images_batch():
         """Sube imagenes (binarias en base64) y las asocia a productos.

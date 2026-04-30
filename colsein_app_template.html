@@ -109,10 +109,24 @@
 .csn-info:hover{background:var(--csn-primary)}
 .csn-info-toolbar{background:rgba(255,255,255,.6);color:var(--csn-primary);width:13px;height:13px;font-size:9px;margin-left:4px}
 .csn-info-toolbar:hover{background:#fff;color:var(--csn-primary-dark)}
-.csn-filter-group{margin-bottom:12px}
+.csn-filter-group{margin-bottom:6px;border:1px solid var(--csn-border-light);border-radius:var(--csn-radius);background:var(--csn-bg);overflow:hidden}
 .csn-filter-group:last-child{margin-bottom:0}
-.csn-filter-label{font-size:12px;color:var(--csn-text-soft);font-weight:600;margin-bottom:5px;display:flex;align-items:center;justify-content:space-between}
-.csn-filter-label-active{color:var(--csn-primary)}
+.csn-filter-group.expanded{border-color:var(--csn-border)}
+.csn-filter-group.has-active{border-color:var(--csn-primary)}
+.csn-filter-header{padding:9px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--csn-text);font-weight:600;user-select:none;transition:background .12s}
+.csn-filter-header:hover{background:var(--csn-bg-soft)}
+.csn-filter-group.expanded .csn-filter-header{border-bottom:1px solid var(--csn-border-light);background:var(--csn-bg-soft)}
+.csn-filter-chev{width:14px;font-size:10px;color:var(--csn-text-muted);font-family:monospace;flex-shrink:0;transition:transform .15s}
+.csn-filter-group.expanded .csn-filter-chev{transform:rotate(90deg);color:var(--csn-primary)}
+.csn-filter-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.csn-filter-group.has-active .csn-filter-name{color:var(--csn-primary)}
+.csn-filter-meta{font-size:11px;color:var(--csn-text-muted);font-weight:500;margin-left:auto;display:inline-flex;align-items:center;gap:6px}
+.csn-filter-active-badge{background:var(--csn-primary);color:#fff;border-radius:9px;padding:1px 7px;font-size:10px;font-weight:700;font-variant-numeric:tabular-nums}
+.csn-filter-options-count{color:var(--csn-text-muted);font-size:11px;font-weight:500}
+.csn-filter-clear-mini{font-size:11px;color:var(--csn-primary);cursor:pointer;background:none;border:none;font-family:inherit;font-weight:500;padding:2px 6px;border-radius:4px}
+.csn-filter-clear-mini:hover{background:var(--csn-accent-light)}
+.csn-filter-body{padding:10px 12px;display:none}
+.csn-filter-group.expanded .csn-filter-body{display:block}
 .csn-filter-pills{display:flex;flex-wrap:wrap;gap:5px}
 .csn-pill{padding:5px 11px;border-radius:14px;background:var(--csn-bg);border:1px solid var(--csn-border);font-size:12px;cursor:pointer;color:var(--csn-text-soft);display:inline-flex;align-items:center;gap:5px;transition:all .12s;font-family:inherit;font-weight:500}
 .csn-pill:hover{border-color:var(--csn-accent);color:var(--csn-accent)}
@@ -322,6 +336,8 @@ const state = {
   // filtros: universales (siempre visibles) + por hoja (cascada)
   universalFilters: {},   // {brand: "sick", industries: "alimentos", ...}
   leafFilters: {},        // {photo_sensor_type: "diffuse", ...}
+  expandedFilters: new Set(),  // ids de filtros desplegados manualmente
+  collapsedFilters: new Set(), // ids cerrados manualmente aún teniendo valor activo
   treeQuery: "",
   productQuery: "",
   view: "catalog",
@@ -447,12 +463,24 @@ function matchFilter(p, attrId, kind, val){
   return false;
 }
 
+function enrichFilterSpec(fdefRaw){
+  // leaf_filters viene como [{id}] o ["id"]; lo normalizamos y enriquecemos
+  // con kind/label desde attribute_definitions cuando faltan.
+  const raw = (typeof fdefRaw === "string") ? {id: fdefRaw} : (fdefRaw || {});
+  if(raw.kind && raw.label) return raw;
+  const def = (DATA.attribute_definitions || {})[raw.id] || {};
+  return Object.assign({
+    kind: def.kind || "enum",
+    label: def.label || raw.id,
+  }, raw);
+}
+
 function applyAllFilters(list){
   // 1. universal filters
   for(const fid in state.universalFilters){
     const val = state.universalFilters[fid];
     if(val == null || val === "") continue;
-    const fdef = DATA.universal_filters.find(f=>f.id===fid);
+    const fdef = enrichFilterSpec(DATA.universal_filters.find(f=>f.id===fid));
     if(!fdef) continue;
     list = list.filter(p => matchFilter(p, fid, fdef.kind, val));
   }
@@ -465,7 +493,8 @@ function applyAllFilters(list){
   if(state.selectedNode){
     const filters = DATA.leaf_filters[state.selectedNode];
     if(filters){
-      for(const fdef of filters){
+      for(const fdefRaw of filters){
+        const fdef = enrichFilterSpec(fdefRaw);
         const val = state.leafFilters[fdef.id];
         if(val == null || val === "") continue;
         list = list.filter(p => matchFilter(p, fdef.id, fdef.kind, val));
@@ -490,7 +519,7 @@ function countInSubtree(nodeId){
   for(const fid in state.universalFilters){
     const val = state.universalFilters[fid];
     if(val == null || val === "") continue;
-    const fdef = DATA.universal_filters.find(f=>f.id===fid);
+    const fdef = enrichFilterSpec(DATA.universal_filters.find(f=>f.id===fid));
     if(!fdef) continue;
     list = list.filter(p => matchFilter(p, fid, fdef.kind, val));
   }
@@ -589,7 +618,7 @@ function renderTreeNode(node, isAll){
       state.selectedNode = isAll ? null : node.id;
       state.selectedProduct = null;
       // limpiar leaf filters cuando cambia de hoja
-      state.leafFilters = {};
+      state.leafFilters = {}; state.expandedFilters = new Set(); state.collapsedFilters = new Set();
       renderAll();
     }
   },
@@ -613,7 +642,7 @@ function renderTreeNode(node, isAll){
 function renderBreadcrumb(){
   const c = $("#csn-breadcrumb"); c.innerHTML = "";
   c.appendChild(el("span", {class:"csn-bc-link", onclick:()=>{
-    state.selectedNode=null; state.selectedProduct=null; state.leafFilters={};
+    state.selectedNode=null; state.selectedProduct=null; state.leafFilters={}; state.expandedFilters=new Set(); state.collapsedFilters=new Set();
     renderAll();
   }}, "Catálogo"));
   if(state.selectedNode){
@@ -629,7 +658,7 @@ function renderBreadcrumb(){
       c.appendChild(el("span", {
         class: isLast ? "csn-bc-current" : "csn-bc-link",
         onclick: isLast ? null : ()=>{
-          state.selectedNode = lockedAcc; state.selectedProduct = null; state.leafFilters = {};
+          state.selectedNode = lockedAcc; state.selectedProduct = null; state.leafFilters = {}; state.expandedFilters = new Set(); state.collapsedFilters = new Set();
           renderAll();
         }
       }, node.label));
@@ -654,14 +683,15 @@ function renderFilters(){
   c.appendChild(el("div",{class:"csn-filters-title"},
     leafSpec ? "Refinar por características técnicas" : "Filtros",
     anyActive ? el("button",{class:"csn-filters-clear", onclick:()=>{
-      state.universalFilters={}; state.leafFilters={};
+      state.universalFilters={}; state.leafFilters={}; state.expandedFilters=new Set(); state.collapsedFilters=new Set();
       renderAll();
     }}, "✕ Limpiar todo") : null
   ));
 
   // 1. Filtros universales
   let universalRendered = 0;
-  universal.forEach(fdef => {
+  universal.forEach(fdefRaw => {
+    const fdef = enrichFilterSpec(fdefRaw);
     const grp = renderFilterGroup(fdef, base, state.universalFilters, "universal");
     if(grp){ c.appendChild(grp); universalRendered++; }
   });
@@ -673,18 +703,12 @@ function renderFilters(){
     for(const fid in state.universalFilters){
       const val = state.universalFilters[fid];
       if(val == null || val === "") continue;
-      const ud = universal.find(u=>u.id===fid);
+      const ud = enrichFilterSpec(universal.find(u=>u.id===fid));
       if(!ud) continue;
       progressiveBase = progressiveBase.filter(p=>matchFilter(p,fid,ud.kind,val));
     }
-    leafSpec.forEach((fdefRaw, idx) => {
-      // Enriquecer fdef con kind/label de attribute_definitions si solo viene {id}
-      const def = (DATA.attribute_definitions || {})[fdefRaw.id];
-      const fdef = (fdefRaw.kind && fdefRaw.label) ? fdefRaw : Object.assign(
-        {kind: (def && def.kind) || "enum",
-         label: (def && def.label) || fdefRaw.id},
-        fdefRaw
-      );
+    leafSpec.forEach((fdefRaw) => {
+      const fdef = enrichFilterSpec(fdefRaw);
       const grp = renderFilterGroup(fdef, progressiveBase, state.leafFilters, "leaf");
       if(grp){ c.appendChild(grp); leafRendered++; }
       const val = state.leafFilters[fdef.id];
@@ -724,35 +748,83 @@ function renderFilterGroup(fdef, base, store, scope){
   const values = collectFilterValues(base, fdef.id, fdef.kind);
   if(values.length < 2) return null; // no tiene sentido un filtro con <2 opciones
   const currentVal = store[fdef.id];
+  const isActive = currentVal != null && currentVal !== "";
 
-  // Para cada valor: contar cuántos quedarían si lo aplicamos sobre `base`
-  // (esto da la "cuenta lookahead" estilo SICK)
+  // Lookahead: cuantos productos quedan si aplicamos cada opcion sobre `base`
   const valuesWithLookahead = values.map(opt => {
     const filteredCount = base.filter(p => matchFilter(p, fdef.id, fdef.kind, opt.value)).length;
     return Object.assign({}, opt, {lookaheadCount: filteredCount});
   });
 
-  const isActive = currentVal != null && currentVal !== "";
-  const grp = el("div", {class:"csn-filter-group"});
-  grp.appendChild(el("div", {class:"csn-filter-label" + (isActive?" csn-filter-label-active":"")},
-    fdef.label,
-    isActive ? el("button",{class:"csn-filters-clear", style:"margin-left:auto", onclick:()=>{
-      delete store[fdef.id]; renderAll();
-    }}, "Limpiar") : null
-  ));
+  // Logica de expansion: si el usuario lo alterno manualmente eso manda;
+  // si no, se expande automaticamente cuando hay un valor activo.
+  const fid = fdef.id;
+  let expanded;
+  if(state.expandedFilters.has(fid)) expanded = true;
+  else if(state.collapsedFilters.has(fid)) expanded = false;
+  else expanded = isActive;
+
+  const grp = el("div", {
+    class: "csn-filter-group" +
+      (expanded ? " expanded" : "") +
+      (isActive ? " has-active" : "")
+  });
+
+  // === Header (siempre visible, click para abrir/cerrar) ===
+  const headerChildren = [
+    el("span", {class:"csn-filter-chev"}, "▶"),
+    el("span", {class:"csn-filter-name"}, fdef.label),
+  ];
+  const meta = el("span", {class:"csn-filter-meta"});
+  if(isActive){
+    const activeLabel = formatFilterValue(currentVal, fdef.id);
+    meta.appendChild(el("span", {class:"csn-filter-active-badge"}, activeLabel));
+    meta.appendChild(el("button", {
+      class:"csn-filter-clear-mini",
+      onclick:(e)=>{
+        e.stopPropagation();
+        delete store[fid];
+        // al limpiar, dejamos visible el filtro abierto un instante? mejor cerrarlo
+        state.expandedFilters.delete(fid);
+        state.collapsedFilters.delete(fid);
+        renderAll();
+      }
+    }, "Limpiar"));
+  } else {
+    meta.appendChild(el("span", {class:"csn-filter-options-count"},
+      values.length + " opciones"));
+  }
+  headerChildren.push(meta);
+
+  grp.appendChild(el("div", {
+    class: "csn-filter-header",
+    onclick: ()=>{
+      const isOpen = grp.classList.contains("expanded");
+      if(isOpen){
+        state.expandedFilters.delete(fid);
+        state.collapsedFilters.add(fid);
+      } else {
+        state.expandedFilters.add(fid);
+        state.collapsedFilters.delete(fid);
+      }
+      renderAll();
+    }
+  }, ...headerChildren));
+
+  // === Body (pills, oculto si esta colapsado) ===
+  const body = el("div", {class:"csn-filter-body"});
   const pills = el("div", {class:"csn-filter-pills"});
   valuesWithLookahead.forEach(opt => {
     const isSelected = currentVal != null && (
       typeof currentVal === "boolean" ? currentVal === opt.value : String(currentVal) === String(opt.value)
     );
     const isDisabled = !isSelected && opt.lookaheadCount === 0;
-    const lockedFid = fdef.id;
     const lockedVal = opt.value;
     pills.appendChild(el("span", {
       class: "csn-pill" + (isSelected?" active":"") + (isDisabled?" disabled":""),
       onclick: isDisabled ? null : ()=>{
-        if(isSelected) delete store[lockedFid];
-        else store[lockedFid] = lockedVal;
+        if(isSelected) delete store[fid];
+        else store[fid] = lockedVal;
         renderAll();
       }
     },
@@ -761,7 +833,8 @@ function renderFilterGroup(fdef, base, store, scope){
       isSelected ? el("span",{class:"csn-pill-x"}, "✕") : null
     ));
   });
-  grp.appendChild(pills);
+  body.appendChild(pills);
+  grp.appendChild(body);
   return grp;
 }
 
