@@ -2219,6 +2219,51 @@ def build_app():
             "html_regenerated": html_ok,
         })
 
+    @app.route("/api/admin/update-nodes", methods=["POST"])
+    def api_admin_update_nodes():
+        """Actualiza propiedades (label, is_leaf) de nodos existentes.
+        Body: {"updates": [{"id": "...", "label": "...", "is_leaf": bool?}, ...]}.
+        Solo aplica cambios sobre nodos existentes; ignora ids desconocidos."""
+        if not require_admin():
+            return jsonify({"error": "no autorizado"}), 401
+        body = request.json or {}
+        updates = body.get("updates") or []
+        if not isinstance(updates, list):
+            return jsonify({"error": "updates debe ser array"}), 400
+        tax = load_taxonomy()
+        nodes = tax.get("nodes", [])
+        by_id = {n["id"]: n for n in nodes}
+        updated = 0
+        unknown = []
+        for u in updates:
+            nid = u.get("id")
+            if not nid or nid not in by_id:
+                if nid:
+                    unknown.append(nid)
+                continue
+            n = by_id[nid]
+            if "label" in u and u["label"]:
+                n["label"] = u["label"]
+            if "is_leaf" in u:
+                n["is_leaf"] = bool(u["is_leaf"])
+            updated += 1
+        TAX_PATH.write_text(json.dumps(tax, ensure_ascii=False, indent=2),
+                            encoding="utf-8")
+
+        html_ok = False
+        try:
+            regen_html_from_template()
+            html_ok = True
+        except Exception:
+            pass
+
+        return jsonify({
+            "ok": True,
+            "updated": updated,
+            "unknown_ids": unknown,
+            "html_regenerated": html_ok,
+        })
+
     @app.route("/api/admin/delete-nodes", methods=["POST"])
     def api_admin_delete_nodes():
         """Borra nodos de taxonomia (y todos sus descendientes) ademas de los
