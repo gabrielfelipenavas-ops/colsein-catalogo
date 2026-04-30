@@ -2117,13 +2117,12 @@ def build_app():
 
     @app.route("/api/admin/register-filters", methods=["POST"])
     def api_admin_register_filters():
-        """Registra attribute_definitions y leaf_filters en lote.
-        Body: {
+        """Registra attribute_definitions, leaf_filters, y opcionalmente nodes
+        nuevos de taxonomia. Body: {
           "definitions": {"<attr_id>": {"label": "...", "kind": "enum|enum_multi", "field": "..."}, ...},
-          "leaf_filters": {"<leaf_id>": ["<attr_id>", ...], ...}
-        }
-        Para resolver el prompt 'definir atributos faltantes' que produce
-        refresh-filters cuando los atributos no estan en attribute_definitions."""
+          "leaf_filters": {"<leaf_id>": ["<attr_id>", ...], ...},
+          "nodes": [{"id": "...", "label": "...", "parent": "...", "is_leaf": bool}, ...]
+        }"""
         if not require_admin():
             return jsonify({"error": "no autorizado"}), 401
         body = request.json or {}
@@ -2132,6 +2131,31 @@ def build_app():
             tax["attribute_definitions"] = {}
         if "leaf_filters" not in tax:
             tax["leaf_filters"] = {}
+        if "nodes" not in tax:
+            tax["nodes"] = []
+
+        # 0) Nodos nuevos (antes de leaf_filters, por si los nuevos filtros
+        #    referencian leaves recien creadas)
+        existing_node_ids = {n["id"] for n in tax["nodes"]}
+        added_nodes = 0
+        for n in body.get("nodes") or []:
+            nid = n.get("id")
+            if not nid or nid in existing_node_ids:
+                continue
+            parent = n.get("parent") or "root"
+            # Calcular level desde el path del id (a.b.c -> level 3)
+            level = nid.count(".") + 1 if nid != "root" else 0
+            trunk = nid.split(".")[0] if "." in nid else nid
+            tax["nodes"].append({
+                "id": nid,
+                "label": n.get("label") or nid.split(".")[-1].replace("-", " ").title(),
+                "parent": parent,
+                "is_leaf": bool(n.get("is_leaf", True)),
+                "level": level,
+                "trunk": n.get("trunk") or trunk,
+            })
+            existing_node_ids.add(nid)
+            added_nodes += 1
 
         added_defs = 0
         skipped_defs = 0
@@ -2175,6 +2199,7 @@ def build_app():
 
         return jsonify({
             "ok": True,
+            "added_nodes": added_nodes,
             "added_definitions": added_defs,
             "skipped_definitions_already_present": skipped_defs,
             "added_filters": added_filters,
