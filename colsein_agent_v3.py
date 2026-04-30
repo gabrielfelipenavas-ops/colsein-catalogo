@@ -1796,11 +1796,23 @@ def build_app():
     @app.route("/api/products")
     def api_products():
         conn = get_db()
-        rows = conn.execute("SELECT * FROM products").fetchall()
-        out = [dict(r) for r in rows]
-        for o in out:
-            o["attributes"] = json.loads(o["attributes"] or "{}")
-            o["secondary_leaves"] = json.loads(o["secondary_leaves"] or "[]")
+        # Importante: NO incluir image_blob en el SELECT (es binario, rompe JSON).
+        # Solo retornamos un boolean image_local indicando si existe.
+        rows = conn.execute(
+            "SELECT id, brand, model, name, family, leaf, secondary_leaves, "
+            "description, manufacturer_url, datasheet_url, image_url, image_mime, "
+            "image_status, image_checked_at, lifecycle, is_software, attributes, "
+            "created_at, updated_at, "
+            "(image_blob IS NOT NULL) AS image_local "
+            "FROM products"
+        ).fetchall()
+        out = []
+        for r in rows:
+            d = dict(r)
+            d["attributes"] = json.loads(d["attributes"] or "{}")
+            d["secondary_leaves"] = json.loads(d["secondary_leaves"] or "[]")
+            d["image_local"] = bool(d.get("image_local"))
+            out.append(d)
         conn.close()
         return jsonify(out)
 
