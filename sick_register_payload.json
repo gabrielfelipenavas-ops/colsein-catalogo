@@ -1,0 +1,26 @@
+{
+  "nodes": [
+    {"id": "deteccion-posicionamiento.sensores-inductivos", "label": "Sensores inductivos", "parent": "deteccion-posicionamiento", "is_leaf": true},
+    {"id": "deteccion-posicionamiento.sensores-capacitivos", "label": "Sensores capacitivos", "parent": "deteccion-posicionamiento", "is_leaf": true},
+    {"id": "deteccion-posicionamiento.sensores-magneticos", "label": "Sensores magnéticos", "parent": "deteccion-posicionamiento", "is_leaf": true},
+    {"id": "deteccion-posicionamiento.sensores-distancia", "label": "Sensores de distancia", "parent": "deteccion-posicionamiento", "is_leaf": true},
+    {"id": "deteccion-posicionamiento.lectores-codigo", "label": "Lectores de código de barras", "parent": "deteccion-posicionamiento", "is_leaf": true},
+    {"id": "instrumentacion-medicion.flujo", "label": "Sensores de flujo y nivel", "parent": "instrumentacion-medicion", "is_leaf": true},
+    {"id": "seguridad-maquina-industrial.escaner-laser-seguridad", "label": "Escáneres láser de seguridad", "parent": "seguridad-maquina-industrial", "is_leaf": true},
+    {"id": "seguridad-maquina-industrial.interruptores-seguridad", "label": "Interruptores de seguridad", "parent": "seguridad-maquina-industrial", "is_leaf": true},
+    {"id": "seguridad-maquina-industrial.controladores-seguridad", "label": "Controladores de seguridad", "parent": "seguridad-maquina-industrial", "is_leaf": true}
+  ],
+  "definitions": {},
+  "leaf_filters": {
+    "deteccion-posicionamiento.sensores-inductivos": ["tipo_sensor", "tamano_metric", "rango_mm", "salida_tipo", "conexion", "ip_rating"],
+    "deteccion-posicionamiento.sensores-capacitivos": ["tipo_sensor", "tamano_metric", "rango_mm", "salida_tipo", "conexion"],
+    "deteccion-posicionamiento.sensores-magneticos": ["tipo_sensor", "salida_tipo", "conexion"],
+    "deteccion-posicionamiento.sensores-distancia": ["rango_mm", "salida_tipo", "conexion", "ip_rating"],
+    "deteccion-posicionamiento.lectores-codigo": ["conexion", "ip_rating"],
+    "deteccion-posicionamiento.fotoelectricos": ["principio_deteccion", "rango_mm", "salida_tipo", "conexion", "ip_rating"],
+    "instrumentacion-medicion.flujo": ["conexion", "ip_rating"],
+    "seguridad-maquina-industrial.escaner-laser-seguridad": ["distancia_sensado"],
+    "seguridad-maquina-industrial.interruptores-seguridad": ["conexion", "ip_rating"],
+    "seguridad-maquina-industrial.controladores-seguridad": ["conexion"]
+  }
+}

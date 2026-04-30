@@ -20,3 +20,13 @@ enrich_resp.json
 payload_*.json
 Captura*.png
 *.screenshot.png
+
+# Catálogos PDF originales de fabricantes (propietarios, grandes)
+*.pdf
+Catalogos*/
+
+# Datos derivados del procesamiento de PDFs (regenerables corriendo los scripts)
+sick_pdf_text.json
+sick_products.json
+sick_images_payload.json
+sick_images_payload_v2.json

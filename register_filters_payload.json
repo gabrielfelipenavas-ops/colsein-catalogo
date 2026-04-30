@@ -1,0 +1,49 @@
+{
+  "definitions": {
+    "rango_temp_ambiente": {
+      "label": "Rango de temperatura ambiente",
+      "kind": "enum",
+      "field": "ambient_temperature_range"
+    },
+    "puertos_comunicacion_plc": {
+      "label": "Puertos de comunicación",
+      "kind": "enum_multi",
+      "field": "plc_communication_ports"
+    },
+    "tipo_touch_hmi": {
+      "label": "Tipo de touch (HMI)",
+      "kind": "enum",
+      "field": "hmi_touch_type"
+    },
+    "principio_deteccion": {
+      "label": "Principio de detección",
+      "kind": "enum",
+      "field": "sensor_detection_principle"
+    },
+    "conexion_proceso": {
+      "label": "Conexión a proceso",
+      "kind": "enum_multi",
+      "field": "process_connection"
+    },
+    "distancia_sensado": {
+      "label": "Distancia de sensado",
+      "kind": "enum",
+      "field": "sensing_distance"
+    }
+  },
+  "leaf_filters": {
+    "cables-conexion.cables.control-poder": ["rango_temp_ambiente"],
+    "cables-conexion.cables.especiales": ["rango_temp_ambiente"],
+    "control-automatizacion.oplc.vision-unistream": ["puertos_comunicacion_plc", "tipo_touch_hmi"],
+    "deteccion-posicionamiento.encoders.absolutos": ["rango_temp_ambiente"],
+    "deteccion-posicionamiento.encoders.incrementales": ["rango_temp_ambiente"],
+    "deteccion-posicionamiento.fotoelectricos": ["principio_deteccion"],
+    "deteccion-posicionamiento.lidar-2d": ["rango_temp_ambiente"],
+    "equipos-zonas-ex.hmi-paneles-ex": ["rango_temp_ambiente"],
+    "instrumentacion-medicion.presion.transmisores.absoluta": ["rango_temp_ambiente"],
+    "instrumentacion-medicion.presion.transmisores.diferencial": ["rango_temp_ambiente"],
+    "instrumentacion-medicion.presion.transmisores.manometrica": ["conexion_proceso"],
+    "motores-movimiento.variadores": ["rango_temp_ambiente"],
+    "seguridad-maquina-industrial.cortinas-luz": ["distancia_sensado"]
+  }
+}
