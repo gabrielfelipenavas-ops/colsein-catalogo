@@ -30,3 +30,9 @@ sick_pdf_text.json
 sick_products.json
 sick_images_payload.json
 sick_images_payload_v2.json
+phoenix_pdf_texts.json
+phoenix_products.json
+phoenix_chunks/
+phoenix_recat_chunks/
+phoenix_recat_register.json
+phoenix_register_payload.json
