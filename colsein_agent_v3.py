@@ -2207,6 +2207,60 @@ def build_app():
             "html_regenerated": html_ok,
         })
 
+    @app.route("/api/admin/upload-images-batch", methods=["POST"])
+    def api_admin_upload_images_batch():
+        """Sube imagenes (binarias en base64) y las asocia a productos.
+        Body: {"images": [{"product_ids": [...], "data_b64": "...", "mime": "image/jpeg"}, ...]}
+        Cada imagen se decodifica una vez y se asocia a todos sus product_ids."""
+        if not require_admin():
+            return jsonify({"error": "no autorizado"}), 401
+        import base64 as _b64
+        body = request.json or {}
+        items = body.get("images") or []
+        if not isinstance(items, list):
+            return jsonify({"error": "images debe ser array"}), 400
+        conn = get_db()
+        updated = 0
+        skipped = 0
+        for it in items:
+            ids = it.get("product_ids") or []
+            data_b64 = it.get("data_b64") or ""
+            mime = it.get("mime") or "image/jpeg"
+            if not ids or not data_b64:
+                continue
+            try:
+                blob = _b64.b64decode(data_b64)
+            except Exception:
+                skipped += len(ids)
+                continue
+            for pid in ids:
+                row = conn.execute("SELECT id FROM products WHERE id = ?", (pid,)).fetchone()
+                if not row:
+                    skipped += 1
+                    continue
+                conn.execute(
+                    "UPDATE products SET image_blob=?, image_mime=?, "
+                    "image_status='blob_only', image_checked_at=CURRENT_TIMESTAMP, "
+                    "updated_at=CURRENT_TIMESTAMP WHERE id=?",
+                    (blob, mime, pid))
+                updated += 1
+        log_operation(conn, "images", "upload-batch", updated)
+        conn.commit()
+        conn.close()
+        # Regenerar HTML para que el frontend incluya las nuevas referencias
+        html_ok = False
+        try:
+            regen_html_from_template()
+            html_ok = True
+        except Exception:
+            pass
+        return jsonify({
+            "ok": True,
+            "updated": updated,
+            "skipped": skipped,
+            "html_regenerated": html_ok,
+        })
+
     @app.route("/api/admin/import-products-batch", methods=["POST"])
     def api_admin_import_products_batch():
         """Inserta o actualiza un batch de productos enviados en JSON.
